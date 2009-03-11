@@ -23,9 +23,10 @@
 % Umlaufplan? flow plan.  Aber es gibt sicher bessere Worte bzw sogar ein offizielles.
 % vehicle scheduling, (rotation planning,) rolling stock (niederländer, aber auch noch Waggons).
 
+% Eigene konsistente Definitionen für Zug, Nutzfahrt etc.
 \section{Some definitions}
 
-Let \(G=(V,A)\) be a digraph of connected channels, i.e. railway
+Let \(G=(V,A)\) be a digraph of connected stations, i.e. railway
 stations, maintenance shops.  Now look at \label{relation}
 \textit{relations} \((v, t_v, w, t_w) \in \left(V,\mathbb{R}\right)^2
 \) where \(v\), \(t_v\) name the station and time of departure, and
@@ -48,11 +49,12 @@ interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\); in addition
 to the schedule \(S\) introduce the set of trains \(T \subseteq
 \mathcal{P}(S)\) partitioning the relations of the schedule.
 Relations in each \textit{train} \(z \in T\) all share the same arrival
-and departure channels, also their arrival and departure times only
-differ by a natural multiply of \(w\).  That is
+and departure stations, also their arrival and departure times only
+differ by an integral multiply of \(w\).  That is
 \begin{equation}
   z \subseteq [(v, t_v, w, t_w )]_d := \{(v, t_v+n d, w, t_w +n d) \mid n \in \mathbb{Z}\}
 \end{equation}
+
 
 
 % Aufbau: Modell oder Anwendung?
