@@ -4,6 +4,8 @@
 \usepackage{amssymb}
 \usepackage{units}
 
+\newcommand{\ol}[1]{\overline{#1}}
+
 \begin{document}
 \author{Matthias Görgens}
 \title{Homogeneous train schedules}
@@ -24,6 +26,8 @@
 % vehicle scheduling, (rotation planning,) rolling stock (niederländer, aber auch noch Waggons).
 
 % Eigene konsistente Definitionen für Zug, Nutzfahrt etc.
+
+
 \section{Some definitions}
 
 Let \(G=(V,A)\) be a digraph of connected stations, i.e. railway
@@ -57,11 +61,28 @@ differ by an integral multiply of \(w\).  That is
 
 
 
+We want to achieve homogenity in our schedules.  A schedule \(S\) is called
+homogenous iff:
+\begin{itemize}
+\item Given trains \(z, \ol{z} \in T\)
+\item and relations \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\),
+\item then either there is no path between neither \(r_1\) and
+  \(\ol{r}_2\) nor \(r_2\) and \(\ol{r}_2\) in \(S\); or they have the paths have the same length:
+%todo: define \Delta first
+\begin{equation}
+\label{homoEq}
+  \Delta (r_1, \ol{r_1}) = \Delta (r_2, \ol{r_2})
+\end{equation}
+\end{itemize}
+
+
+
+
 % Aufbau: Modell oder Anwendung?
 % Anwendung: Umlaufplanung etc, Abschätzung anderer Möglichkeiten.  Anwendung zur Motivation.
 % Welcher Umfang zur Anwendung?  Literatur.  Allgemeine Beschreibung?  Irgendeine Referenz wird es schon geben.
 
-
+% relation durch Übersetzung von Nutzfahrt ersetzen.
 
 
 % Let \(T = \mathbb{R}/{n \mathbb{Z}} \)

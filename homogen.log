@@ -1,4 +1,4 @@
-This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2009.2.10)  11 MAR 2009 14:32
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2009.2.10)  11 MAR 2009 16:40
 entering extended mode
  %&-line parsing enabled.
 **homogen.tex
@@ -282,51 +282,59 @@ Package: nicefrac 1998/08/04 v0.9b Nice fractions
 )) (./homogen.aux)
 \openout1 = `homogen.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 7.
-LaTeX Font Info:    ... okay on input line 7.
-LaTeX Font Info:    Try loading font information for U+msa on input line 10.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 9.
+LaTeX Font Info:    ... okay on input line 9.
+LaTeX Font Info:    Try loading font information for U+msa on input line 12.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2002/01/19 v2.2g AMS font definitions
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 10.
+LaTeX Font Info:    Try loading font information for U+msb on input line 12.
 
 (/usr/share/texmf-texlive/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2002/01/19 v2.2g AMS font definitions
-) [1
+)
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 65.
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./homogen.aux) ) 
+(/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <9> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 65.
+ [1
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2] (./homogen.aux) ) 
 Here is how much of TeX's memory you used:
- 1135 strings out of 95070
- 12361 string characters out of 1182680
- 60544 words of memory out of 1500000
- 4319 multiletter control sequences out of 10000+50000
+ 1154 strings out of 95070
+ 12652 string characters out of 1182680
+ 61544 words of memory out of 1500000
+ 4335 multiletter control sequences out of 10000+50000
  12050 words of font info for 46 fonts, out of 1200000 for 2000
  28 hyphenation exceptions out of 8191
- 24i,6n,24p,201b,198s stack positions out of 5000i,500n,6000p,200000b,5000s
-</usr/sha
-re/texmf-texlive/fonts/type1/bluesky/cm/cmbx12.pfb></usr/share/texmf-texlive/fo
-nts/type1/bluesky/cm/cmbx9.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm
-/cmmi6.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmmi9.pfb></usr/sha
-re/texmf-texlive/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf-texlive/fon
-ts/type1/bluesky/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/
-cmr17.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmr6.pfb></usr/share
-/texmf-texlive/fonts/type1/bluesky/cm/cmr9.pfb></usr/share/texmf-texlive/fonts/
-type1/bluesky/cm/cmsy9.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmt
-i9.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/ams/msbm10.pfb>
-Output written on homogen.pdf (1 page, 56264 bytes).
+ 24i,6n,24p,201b,196s stack positions out of 5000i,500n,6000p,200000b,5000s
+</usr
+/share/texmf-texlive/fonts/type1/bluesky/cm/cmbx12.pfb></usr/share/texmf-texliv
+e/fonts/type1/bluesky/cm/cmbx9.pfb></usr/share/texmf-texlive/fonts/type1/bluesk
+y/cm/cmmi6.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmmi9.pfb></usr
+/share/texmf-texlive/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf-texlive
+/fonts/type1/bluesky/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/bluesky
+/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmr6.pfb></usr/s
+hare/texmf-texlive/fonts/type1/bluesky/cm/cmr9.pfb></usr/share/texmf-texlive/fo
+nts/type1/bluesky/cm/cmsy9.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm
+/cmti9.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/ams/msbm10.pfb>
+Output written on homogen.pdf (2 pages, 58567 bytes).
 PDF statistics:
- 54 PDF objects out of 1000 (max. 8388607)
+ 57 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
