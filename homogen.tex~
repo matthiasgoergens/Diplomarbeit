@@ -1,0 +1,70 @@
+\documentclass{article} % ams-article nehmen.
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{units}
+
+\begin{document}
+\author{Matthias Görgens}
+\title{Homogeneous train schedules}
+\maketitle
+\abstract{Although most railroad schedules remain in use for half a year,
+  they tend to repeat themself each week.  Thus one can also repeat
+  their implementations, the vehicle schedulings, each week.
+
+  But railroad schedules show even more structure: All the working
+  days of the week are usually identical.  This work sets out to
+  investigate how to transport this similarity in relations to their
+  vehicle scheduligs.  We define homogeneous vehicle schedulings,
+  establish a measure of partial homogenity and search for ways to
+  efficiently find the most homogeneous vehicle scheduling for a given
+  schedule.}
+
+% Umlaufplan? flow plan.  Aber es gibt sicher bessere Worte bzw sogar ein offizielles.
+% vehicle scheduling, (rotation planning,) rolling stock (niederländer, aber auch noch Waggons).
+
+\section{Some definitions}
+
+Let \(G=(V,A)\) be a digraph of connected channels, i.e. railway
+stations, maintenance shops.  Now look at \label{relation}
+\textit{relations} \((v, t_v, w, t_w) \in \left(V,\mathbb{R}\right)^2
+\) where \(v\), \(t_v\) name the station and time of departure, and
+\(w\), \(t_v\) name the station and time of arrival.  We call a set of
+relations \(S \subseteq \left(V,\mathbb{R}\right)^2\) a schedule.
+
+We want to focus our attention to cyclic schedules.  A schedule \(S\)
+is \label{cyclic} \textit{cyclic}, iff there exists a period \(w \in
+\mathbb{R}^+\), so that for each relation \((v, t_v, w, t_w) \in S\)
+the relations \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\)
+are also in \(S\).  For a cyclic schedule \(S\) we will identify \(S\)
+with its image under the canonic morphism \(\varphi \colon
+\left(V,\mathbb{R}\right)^2 \to \left(V,\mathbb{R}/{w
+    \mathbb{Z}}\right)^2\).
+
+In practise schedules repeat every week i.e. \(w = 7 \unit{days}\).
+
+This work will deal with schedules that show more structure: Fix an
+interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\); in addition
+to the schedule \(S\) introduce the set of trains \(T \subseteq
+\mathcal{P}(S)\) partitioning the relations of the schedule.
+Relations in each \textit{train} \(z \in T\) all share the same arrival
+and departure channels, also their arrival and departure times only
+differ by a natural multiply of \(w\).  That is
+\begin{equation}
+  z \subseteq [(v, t_v, w, t_w )]_d := \{(v, t_v+n d, w, t_w +n d) \mid n \in \mathbb{Z}\}
+\end{equation}
+
+
+% Aufbau: Modell oder Anwendung?
+% Anwendung: Umlaufplanung etc, Abschätzung anderer Möglichkeiten.  Anwendung zur Motivation.
+% Welcher Umfang zur Anwendung?  Literatur.  Allgemeine Beschreibung?  Irgendeine Referenz wird es schon geben.
+
+
+
+
+% Let \(T = \mathbb{R}/{n \mathbb{Z}} \)
+% be the time that 
+
+
+
+\end{document}

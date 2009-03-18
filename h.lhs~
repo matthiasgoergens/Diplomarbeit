@@ -1,0 +1,2 @@
+> data X = M | B
+> data Y = M | C
