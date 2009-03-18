@@ -2,3 +2,6 @@
 *~Homogen.lhs~
 *.o
 *.hi
+*.dvi
+*.aux
+.bzr/
