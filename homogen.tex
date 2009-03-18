@@ -1,79 +1,154 @@
-\documentclass{article} % ams-article nehmen.
+\documentclass{amsart} % ams-article nehmen.
+\usepackage{charter}
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
 \usepackage{units}
+\usepackage{amsmath}
+
+% ---- LATIN ----
+\def\etal{\emph{et~al.}}
+\def\ie{\emph{i.e.}}
+\def\eg{\emph{e.g.}}
+\def\vitae{vit\ae{}}
+\def\apriori{\emph{a~priori}}
+\def\aposteriori{\emph{a~posteriori}}
+
+% ---- FRENCH ----
+\def\naive{na\"{\i}ve}
+\def\Naive{Na\"{\i}ve}
+\def\naively{na\"{\i}vely}	% Okay, I know, this isn't French.
+\def\Naively{Na\"{\i}vely}
+
+
+% Other
+\def\Cpp{C\raisebox{0.5ex}{\tiny\bf++}}
+
 
 \newcommand{\ol}[1]{\overline{#1}}
 
 \begin{document}
 \author{Matthias Görgens}
-\title{Homogeneous train schedules}
-\maketitle
-\abstract{Although most railroad schedules remain in use for half a year,
-  they tend to repeat themself each week.  Thus one can also repeat
-  their implementations, the vehicle schedulings, each week.
+\title{Homogeneous vehicle schedules}
 
-  But railroad schedules show even more structure: All the working
-  days of the week are usually identical.  This work sets out to
-  investigate how to transport this similarity in relations to their
-  vehicle scheduligs.  We define homogeneous vehicle schedulings,
-  establish a measure of partial homogenity and search for ways to
-  efficiently find the most homogeneous vehicle scheduling for a given
-  schedule.}
+\abstract{
 
-% Umlaufplan? flow plan.  Aber es gibt sicher bessere Worte bzw sogar ein offizielles.
-% vehicle scheduling, (rotation planning,) rolling stock (niederländer, aber auch noch Waggons).
+% unterschied zwischen fahrplan und umlaufplan.
+
+  Although most railroad timetables remain in use for half a
+  year, they tend to repeat themself each week.  Thus one can also
+  repeat their implementations in rolling stock, the vehicle
+  schedulings, each week.
+
+  But timetables show even more structure: All the working days of the
+  week are usually identical.  This work sets out to investigate how
+  to preserve this similarity in vehicle schedulings.  We define
+  homogeneous vehicle schedulings, establish a measure of partial
+  homogenity and search for ways to efficiently find the most
+  homogeneous vehicle scheduling for a given timetable.}
+
+% vehicle scheduling
 
 % Eigene konsistente Definitionen für Zug, Nutzfahrt etc.
 
-
+% Nutzfahrt = Train
+% Zug = set of trains, set
+\maketitle
 \section{Some definitions}
 
-Let \(G=(V,A)\) be a digraph of connected stations, i.e. railway
-stations, maintenance shops.  Now look at \label{relation}
-\textit{relations} \((v, t_v, w, t_w) \in \left(V,\mathbb{R}\right)^2
-\) where \(v\), \(t_v\) name the station and time of departure, and
+Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
+railway stations, maintenance shops.  Now look at \label{trains}
+\textit{trains} \((v, t_v, w, t_w) \in \left(V,\mathbb{R}\right)^2 \)
+where \(v\), \(t_v\) name the station and time of departure, and
 \(w\), \(t_v\) name the station and time of arrival.  We call a set of
-relations \(S \subseteq \left(V,\mathbb{R}\right)^2\) a schedule.
+trains \(T \subseteq \left(V,\mathbb{R}\right)^2\) a timetable.  (In
+practise \(T\) can also be a multiset.)
 
-We want to focus our attention to cyclic schedules.  A schedule \(S\)
+We want to focus our attention to cyclic timetables.  A timetable \(T\)
 is \label{cyclic} \textit{cyclic}, iff there exists a period \(w \in
-\mathbb{R}^+\), so that for each relation \((v, t_v, w, t_w) \in S\)
-the relations \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\)
-are also in \(S\).  For a cyclic schedule \(S\) we will identify \(S\)
-with its image under the canonic morphism \(\varphi \colon
-\left(V,\mathbb{R}\right)^2 \to \left(V,\mathbb{R}/{w
-    \mathbb{Z}}\right)^2\).
+\mathbb{R}^+\), so that for each train \((v, t_v, w, t_w) \in T\)
+the trains \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\)
+are also in \(T\).  We will identify cyclic timetables with their
+image under the canonic morphism
+\(\varphi \colon \left(V,\mathbb{R}\right)^2
+\to \left(V,\mathbb{R}/{\left(w \mathbb{Z}\right)}\right)^2\).
 
-In practise schedules repeat every week i.e. \(w = 7 \unit{days}\).
 
-This work will deal with schedules that show more structure: Fix an
-interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\); in addition
-to the schedule \(S\) introduce the set of trains \(T \subseteq
-\mathcal{P}(S)\) partitioning the relations of the schedule.
-Relations in each \textit{train} \(z \in T\) all share the same arrival
-and departure stations, also their arrival and departure times only
-differ by an integral multiply of \(w\).  That is
+A timetable only fixes the services offered by the railroad company.
+But it does not specify where the locomotives and waggons in use come
+from or where they go afterwards.  Naturally one wants to re-use
+rolling stock from one train for another one.  So one seeks to
+establish a digraph \(G_S=(T,S\subseteq T^2)\), where each train has
+exactly one predecessor and exactly one successor.  Thus \(G_s\)
+consists of cycles.
+
+% motivation.  warum keine einfacheren ansätze?
+
+In practise timetables repeat every week \ie{} \(w = 7 \textrm{ days}\).
+This work will deal with timetables that show more structure: Fix an
+interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\) (\eg for
+days in a week, let \(n=7\)).  We partition the trains into
+equivalence classes that share the same arrival and departure
+stations, and whose arrival and departure times only differ by an
+integral multiply of \(w\) (\ie{} whole days):
 \begin{equation}
-  z \subseteq [(v, t_v, w, t_w )]_d := \{(v, t_v+n d, w, t_w +n d) \mid n \in \mathbb{Z}\}
+  \left[\left( v, t_v, w, t_w \right) \right]_d := \{(v, t_v+n d, w, t_w +n d) \mid n \in \mathbb{Z}\}
 \end{equation}
+Let \(C\) be the set of all those classes.
 
+Ideally each class has exactly one member for each day of the week.
+That would allow \(w = 1 \textrm{day}\) instead of \(w = 7 \textrm{days}\)
+and enable a schedule that repeats perfectly every day.  But more
+typical me observe a lot of classes in a timetable with one member
+each day from Monday to Friday and none on the weekends.  Or even less
+regular arrangements.
 
+To guarantee homogenity one might \naively{} propose that all members
+of one class \(c_1\) only be succeeded by members of the same class
+\(c_2\).  But that would not be practial, because \eg a class that is
+offered all week would be banned from being connected to a class of trains that
+are not offered on the weekend.
 
-We want to achieve homogenity in our schedules.  A schedule \(S\) is called
+% + definition of \Delta
+
+% \Delta
+
+So we introduce a weaker condition.  A schedule \(S\) is called
 homogenous iff:
 \begin{itemize}
-\item Given trains \(z, \ol{z} \in T\)
-\item and relations \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\),
+\item Given classes \(z, \ol{z} \in C\)
+\item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\),
+% TODO: Gleicher Abstand?
 \item then either there is no path between neither \(r_1\) and
-  \(\ol{r}_2\) nor \(r_2\) and \(\ol{r}_2\) in \(S\); or they have the paths have the same length:
+  \(\ol{r}_2\) nor \(r_2\) and \(\ol{r}_2\) in \(S\); or they are connected by paths of the same length:
 %todo: define \Delta first
 \begin{equation}
 \label{homoEq}
-  \Delta (r_1, \ol{r_1}) = \Delta (r_2, \ol{r_2})
+  \Delta_S (r_1, \ol{r_1}) = \Delta_S (r_2, \ol{r_2})
 \end{equation}
 \end{itemize}
+with some distance function \(\Delta_S \colon \left(T,T\right) \to
+\mathbb{R}^+_0 \mathbin{\dot{\cup}} \infty \) on paths in \(S\).
+
+We will define \(\Delta_S (s,t)\) as the sum of arc lengths \(\delta\)
+in the path between the trains \(s\) and \(t\) or \(\infty\) if no
+such path exists.  We can talk about \emph{the} path \(P \subseteq S\)
+between \(s\) and \(t\), because \(G_S\) consists only of cycles.
+\[\Delta_S (s,t) = \sum_{(v,w)\in P} \delta(v,w)\]
+
+% Bezeichnungen!  Pfeile über t?
+
+% Mehrwöchige Fahrten!
+
+Of course we have only moved the problem.  We still have to define the length of a single arc:  \(\delta(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
+\[
+\delta ((\cdot, t_{\textrm{dep}}, \cdot, t_{\textrm{arr}}), (\cdot, \ol{t_{\textrm{dep}}},\cdot, \cdot)  :=
+\min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \mathbb{R}^+_0)
+\]
+
+In most cases this will be just the difference \(\ol{t_{\textrm{dep}}} - t_{\textrm{dep}}\), but we may need to add a whole number of weeks if \(\ol{t}\) departs before \{t\} arrives.
+
+
 
 
 
@@ -91,3 +166,18 @@ homogenous iff:
 
 
 \end{document}
+
+% DSL: states; uebergaenge als zertifikate, wenn nötig.
+% was ist mit zufälligen einflüssen? -> zufall spielt mit.
+
+% data structure:
+% [region: {[pop: {mv}], lscape, adv, nachbarn}
+
+% Runde DSL? top-down?
+% pop-growth
+% pop-move
+
+% event
+
+% advances
+% upkeep (cities, tribes)
