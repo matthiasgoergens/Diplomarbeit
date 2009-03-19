@@ -31,7 +31,7 @@
 \author{Matthias Görgens}
 \title{Homogeneous vehicle schedules}
 
-\abstract{
+\begin{abstract}
 
 % unterschied zwischen fahrplan und umlaufplan.
 
@@ -45,7 +45,8 @@
   to preserve this similarity in vehicle schedulings.  We define
   homogeneous vehicle schedulings, establish a measure of partial
   homogenity and search for ways to efficiently find the most
-  homogeneous vehicle scheduling for a given timetable.}
+  homogeneous vehicle scheduling for a given timetable.
+\end{abstract}
 
 % vehicle scheduling
 
@@ -138,7 +139,7 @@ between \(s\) and \(t\), because \(G_S\) consists only of cycles.
 
 % Bezeichnungen!  Pfeile über t?
 
-% Mehrwöchige Fahrten!
+% Mehrwöchige Fahrten!  Zurückgehen auf die ursprüngliche nicht-zyklische Version!
 
 Of course we have only moved the problem.  We still have to define the length of a single arc:  \(\delta(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
 \[
@@ -146,7 +147,9 @@ Of course we have only moved the problem.  We still have to define the length of
 \min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \mathbb{R}^+_0)
 \]
 
-In most cases this will be just the difference \(\ol{t_{\textrm{dep}}} - t_{\textrm{dep}}\), but we may need to add a whole number of weeks if \(\ol{t}\) departs before \{t\} arrives.
+In most cases this will be just the difference \(\ol{t_{\textrm{dep}}}
+- t_{\textrm{dep}}\), but we may need to add a whole number of weeks
+if \(\ol{t}\) departs before \{t\} arrives.
 
 
 
