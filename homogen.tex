@@ -3,8 +3,11 @@
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
+\usepackage{amsfonts}
 \usepackage{units}
 \usepackage{amsmath}
+
+\author{Matthias Görgens}
 
 % ---- LATIN ----
 \def\etal{\emph{et~al.}}
@@ -27,8 +30,20 @@
 
 \newcommand{\ol}[1]{\overline{#1}}
 
+\DeclareMathOperator{\In}{in}
+\DeclareMathOperator{\Out}{out}
+
+%für ein/aus-gehende kanten
+\newcommand{\ina}{\ensuremath{\vec{\In}}}
+\newcommand{\outa}{\ensuremath{\vec{\Out}}}
+
+%für knoten ein/aus-gehender kanten.
+\newcommand{\inv}{\ensuremath{\dot{\In}}}
+\newcommand{\outv}{\ensuremath{\dot{\Out}}}
+
+\usepackage{hyperref}
 \begin{document}
-\author{Matthias Görgens}
+
 \title{Homogeneous vehicle schedules}
 
 \begin{abstract}
@@ -59,10 +74,10 @@
 
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
 railway stations, maintenance shops.  Now look at \label{trains}
-\textit{trains} \((v, t_v, w, t_w) \in \left(V,\mathbb{R}\right)^2 \)
+\textit{trains} \((v, t_v, w, t_w) \in \left(V \times \mathbb{R}\right)^2 \)
 where \(v\), \(t_v\) name the station and time of departure, and
 \(w\), \(t_v\) name the station and time of arrival.  We call a set of
-trains \(T \subseteq \left(V,\mathbb{R}\right)^2\) a timetable.  (In
+trains \(T \subseteq \left(V \times \mathbb{R}\right)^2\) a timetable.  (In
 practise \(T\) can also be a multiset.)
 
 We want to focus our attention to cyclic timetables.  A timetable \(T\)
@@ -71,9 +86,8 @@ is \label{cyclic} \textit{cyclic}, iff there exists a period \(w \in
 the trains \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\)
 are also in \(T\).  We will identify cyclic timetables with their
 image under the canonic morphism
-\(\varphi \colon \left(V,\mathbb{R}\right)^2
-\to \left(V,\mathbb{R}/{\left(w \mathbb{Z}\right)}\right)^2\).
-
+\(\varphi \colon \left(V \times \mathbb{R}\right)^2
+\to \left(V \times \mathbb{R}/{\left(w \mathbb{Z}\right)}\right)^2\).
 
 A timetable only fixes the services offered by the railroad company.
 But it does not specify where the locomotives and waggons in use come
@@ -105,25 +119,25 @@ each day from Monday to Friday and none on the weekends.  Or even less
 regular arrangements.
 
 We will define a distance function \(\Delta_S (s,t)\) on paths in
-\(S\) as the sum of arc lengths \(\delta\) in the path between the
+\(S\) as the sum of arc lengths \(d\) in the path between the
 trains \(s\) and \(t\) or \(\infty\) if no such path exists.  We can
 talk about \emph{the} path \(P \subseteq S\) between \(s\) and \(t\),
 because \(G_S\) consists only of cycles.
-\[\Delta_S (s,t) = \sum_{(v,w)\in P} \delta(v,w)\]
+\[\Delta_S (s,t) = \sum_{(v,w)\in P} d(v,w)\]
 
 % Bezeichnungen!  Pfeile über t?
 
 % TODO: Mehrwöchige Fahrten!  Zurückgehen auf die ursprüngliche nicht-zyklische Version!
 
-Of course we have only moved the problem.  We still have to define the length of a single arc:  \(\delta(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
+Of course we have only moved the problem.  We still have to define the length of a single arc:  \(d(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
 \[
-\delta ((\cdot, t_{\textrm{dep}}, \cdot, t_{\textrm{arr}}), (\cdot, \ol{t_{\textrm{dep}}},\cdot, \cdot)  :=
+d ((\cdot, t_{\textrm{dep}}, \cdot, t_{\textrm{arr}}), (\cdot, \ol{t_{\textrm{dep}}},\cdot, \cdot)  :=
 \min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \mathbb{R}^+_0)
 \]
 
 In most cases this will be just the difference \(\ol{t_{\textrm{dep}}}
 - t_{\textrm{dep}}\), but we may need to add a whole number of weeks
-if \(\ol{t}\) departs before \{t\} arrives.  Also a different approach
+if \(\ol{t}\) departs before \{t\} arrives.  Also a more general approach
 has to be taken when trains take more than one week from arrival to
 departure.
 
@@ -142,7 +156,7 @@ homogenous iff:
 \begin{itemize}
 \item Given classes \(z, \ol{z} \in C\)
 \item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\)
-\item with \( \delta (r_1, r_2) = \delta(\ol{r}_1, \ol{r}_2) \),
+\item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
 % TODO: Gleicher Abstand?
 \item then either there is no path between neither \(r_1\) and
   \(\ol{r}_2\) nor \(r_2\) and \(\ol{r}_2\) in \(S\); or they are connected by paths of the same length:
@@ -153,10 +167,72 @@ homogenous iff:
 \end{equation}
 \end{itemize}
 
+For arcs in a digraph \(G=(V,A)\) we will use the following notation:
+\begin{align*}
+\ina\colon  V &\to \mathcal{P}(A) \\
+v &\mapsto \left(V \times \{v\}\right) \cap A\\
+%\end{align*}
+%\begin{align*}
+\outa\colon  V &\to \mathcal{P}(A) \\
+v &\mapsto \left(\{v\} \times V\right) \cap A\\
+%\end{align*}
+%\begin{align*}
+\inv\colon  V &\to \mathcal{P}(V) \\
+v &\mapsto \left\{ u \colon \left(u,v\right) \in \ina(v) \right\}\\
+%\end{align*}
+%\begin{align*}
+\outv\colon  V &\to \mathcal{P}(V) \\
+v &\mapsto \left\{w \colon \left(v,w\right) \in \outa\left(v\right) \right\}\\
+\end{align*}
 
+\section{An infinitely-large integer linear program}
 
+Let \(T\) be a timetable.  And let \(G_\mathbb{S} := (T, \mathbb{S} =
+T \times T) \) be its associated complete graph.  A schedule \(G_S = (T, S \subseteq \mathbb{S})\)
+will be a subgraph of \(G_\mathbb{S}\).
 
+% Define the set of matchings as:
 
+For the integer program we introduce the variable \(m\) with the following domain and interpretation:
+
+\begin{align}
+  m & \colon T \times T \to \{0,1\} \\
+  m & := \mathbf{1}_{\mathbb{S}}
+\end{align}
+
+% subto matching_aus:
+%       forall <v> in V:
+%       	     sum <w> in V: umlauf[v,w] == 1;
+% subto matching_ein:
+%       forall <w> in V:
+%       	     sum <v> in V: umlauf[v,w] == 1;
+
+The following two equations capture the requirement that \(G_S\) consists of cycles.  For all \(r \in T\):
+\begin{align}
+  \sum_{a \in \ina(r)}  m(a) &= 1\\
+  \sum_{a \in \outa(r)} m(a) &= 1
+\end{align}
+
+To reflect the values of \(\Delta_S\) in the integer program we use the binary variables \(\delta\):
+\begin{align}
+  \delta \colon T \times T \times \mathbb{R} & \to \{0,1\} \\
+  \delta\left(r, q, \Delta_S\left(r,q\right)\right) &= 1 \\
+  \sum_{z \in \mathbb{R}} \delta(r, q, z) &\leq 1
+\end{align}
+
+For every path \(P \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
+\begin{align}
+\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1 \textrm{;}
+\end{align}
+\ie{} if \(P \subseteq S\) then length of \(P\) gives
+the distance between its endpoints in \(S\).
+
+And for every \(p\)-\(q\)-cut \(C \subseteq T\):
+\begin{align}
+  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (p,q, z)
+\end{align}
+
+% \(G_S=(T,S\subseteq T^2)\)
 
 
 % Aufbau: Modell oder Anwendung?
@@ -169,20 +245,17 @@ homogenous iff:
 % Let \(T = \mathbb{R}/{n \mathbb{Z}} \)
 % be the time that 
 
+Those constraints define a convex set.  Alas we can't use them
+directly, since there are an infinite number of constraints.  But
+fortunately they are constructed for use with row generation.  We will
+show that there is a finite subset of constraints that define the same
+polytope.  And we will show how to define a polynomial oracle to find
+violated constraints.
+
+
+% \section{Finitizing the integer linear program}
+% As promised
+
+
 
 \end{document}
-
-% DSL: states; uebergaenge als zertifikate, wenn nötig.
-% was ist mit zufälligen einflüssen? -> zufall spielt mit.
-
-% data structure:
-% [region: {[pop: {mv}], lscape, adv, nachbarn}
-
-% Runde DSL? top-down?
-% pop-growth
-% pop-move
-
-% event
-
-% advances
-% upkeep (cities, tribes)
