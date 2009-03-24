@@ -29,6 +29,7 @@
 
 
 \newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\todo}[1]{\marginpar{#1}}
 
 \DeclareMathOperator{\In}{in}
 \DeclareMathOperator{\Out}{out}
@@ -47,9 +48,6 @@
 \title{Homogeneous vehicle schedules}
 
 \begin{abstract}
-
-% unterschied zwischen fahrplan und umlaufplan.
-
   Although most railroad timetables remain in use for half a
   year, they tend to repeat themself each week.  Thus one can also
   repeat their implementations in rolling stock, the vehicle
@@ -63,13 +61,12 @@
   homogeneous vehicle scheduling for a given timetable.
 \end{abstract}
 
-% vehicle scheduling
-
-% Eigene konsistente Definitionen für Zug, Nutzfahrt etc.
-
-% Nutzfahrt = Train
-% Zug = set of trains, set
 \maketitle
+\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
+
+\todo{Eigene konsistente Definitionen für Zug, Nutzfahrt etc:\\
+Nutzfahrt = Train\\
+Zug = set of trains, set}
 \section{Some definitions}
 
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
@@ -97,7 +94,7 @@ establish a digraph \(G_S=(T,S\subseteq T^2)\), where each train has
 exactly one predecessor and exactly one successor.  Thus \(G_s\)
 consists of cycles.
 
-% motivation.  warum keine einfacheren ansätze?
+\todo{motivation.  warum keine einfacheren ansätze?}
 
 In practise timetables repeat every week \ie{} \(w = 7 \textrm{ days}\).
 This work will deal with timetables that show more structure: Fix an
@@ -123,11 +120,16 @@ We will define a distance function \(\Delta_S (s,t)\) on paths in
 trains \(s\) and \(t\) or \(\infty\) if no such path exists.  We can
 talk about \emph{the} path \(P \subseteq S\) between \(s\) and \(t\),
 because \(G_S\) consists only of cycles.
-\[\Delta_S (s,t) = \sum_{(v,w)\in P} d(v,w)\]
+\[\Delta_{S}\colon T \times T \to \mathbb{R}^+_0 \cup \{\infty\}\]
+\[\Delta_S (s,t) = \begin{cases}
+\sum_{(v,w)\in P} d(v,w) & \textrm{if there is a path \( P \in S\) between \(s\) and \(t\)}\\
+\infty & \textrm{else}
+\end{cases}
+\]
 
-% Bezeichnungen!  Pfeile über t?
+\todo{Bezeichnungen!  Pfeile über t?}
 
-% TODO: Mehrwöchige Fahrten!  Zurückgehen auf die ursprüngliche nicht-zyklische Version!
+\todo{Mehrwöchige Fahrten!  Zurückgehen auf die ursprüngliche nicht-zyklische Version!}
 
 Of course we have only moved the problem.  We still have to define the length of a single arc:  \(d(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
 \[
@@ -147,26 +149,23 @@ of one class \(c_1\) only be succeeded by members of the same class
 offered all week would be banned from being connected to a class of trains that
 are not offered on the weekend.
 
-% + definition of \Delta
-
-% \Delta
-
+\todo{motivation.  faellt aus der luft.. zitat der begriffsbestimmung.}
 So we introduce a weaker condition.  A schedule \(S\) is called
 homogenous iff:
 \begin{itemize}
 \item Given classes \(z, \ol{z} \in C\)
 \item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\)
 \item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
-% TODO: Gleicher Abstand?
 \item then either there is no path between neither \(r_1\) and
   \(\ol{r}_2\) nor \(r_2\) and \(\ol{r}_2\) in \(S\); or they are connected by paths of the same length:
-%todo: define \Delta first
 \begin{equation}
 \label{homoEq}
   \Delta_S (r_1, \ol{r_1}) = \Delta_S (r_2, \ol{r_2})\textrm{.}
 \end{equation}
 \end{itemize}
 
+
+\todo{motivation fuer definition}
 For arcs in a digraph \(G=(V,A)\) we will use the following notation:
 \begin{align*}
 \ina\colon  V &\to \mathcal{P}(A) \\
@@ -185,7 +184,7 @@ v &\mapsto \left\{ u \colon \left(u,v\right) \in \ina(v) \right\}\\
 v &\mapsto \left\{w \colon \left(v,w\right) \in \outa\left(v\right) \right\}\\
 \end{align*}
 
-\section{An infinitely-large integer linear program}
+\section{An infinite integer linear program}
 
 Let \(T\) be a timetable.  And let \(G_\mathbb{S} := (T, \mathbb{S} =
 T \times T) \) be its associated complete graph.  A schedule \(G_S = (T, S \subseteq \mathbb{S})\)
@@ -209,8 +208,8 @@ For the integer program we introduce the variable \(m\) with the following domai
 
 The following two equations capture the requirement that \(G_S\) consists of cycles.  For all \(r \in T\):
 \begin{align}
-  \sum_{a \in \ina(r)}  m(a) &= 1\\
-  \sum_{a \in \outa(r)} m(a) &= 1
+  \label{matchBedingung}
+  \sum_{a \in \ina(r)}  m(a) = \sum_{a \in \outa(r)} m(a) = 1
 \end{align}
 
 To reflect the values of \(\Delta_S\) in the integer program we use the binary variables \(\delta\):
@@ -245,6 +244,8 @@ And for every \(p\)-\(q\)-cut \(C \subseteq T\):
 % Let \(T = \mathbb{R}/{n \mathbb{Z}} \)
 % be the time that 
 
+
+\todo{welche constraints?  labels und refs.  convex set vs gitterpunkte?}
 Those constraints define a convex set.  Alas we can't use them
 directly, since there are an infinite number of constraints.  But
 fortunately they are constructed for use with row generation.  We will
@@ -253,9 +254,19 @@ polytope.  And we will show how to define a polynomial oracle to find
 violated constraints.
 
 
-% \section{Finitizing the integer linear program}
-% As promised
+\section{Finitizing the integer linear program}
 
+Equation \ref{matchBedingung} holds for all \(r \in T\) and \(T\) is already finite.
+We declared \(\Delta_S\) to map into \(R^+_0 \cup \{\infty\}\), but we can restrict the image even further:
+\todo{notation: \(\oplus\) is the Minkowski sum.}
+\begin{equation}
+\label{einfacher}
+\Delta_S (s,t) \in \{d (s,t)\} \oplus w \mathbb{Z}
+\end{equation}
+\todo{Proof why \ref{einfacher} holds!}
+
+Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w \mathbb{Z}\) vanish.
 
 
 \end{document}
+
