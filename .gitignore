@@ -7,5 +7,6 @@
 *.log
 *.out
 *.div
+*.ps
 homogen.pdf
 .bzr/
