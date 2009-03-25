@@ -6,5 +6,6 @@
 *.aux
 *.log
 *.out
+*.div
 homogen.pdf
 .bzr/
