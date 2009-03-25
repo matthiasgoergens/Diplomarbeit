@@ -121,11 +121,13 @@ trains \(s\) and \(t\) or \(\infty\) if no such path exists.  We can
 talk about \emph{the} path \(P \subseteq S\) between \(s\) and \(t\),
 because \(G_S\) consists only of cycles.
 \[\Delta_{S}\colon T \times T \to \mathbb{R}^+_0 \cup \{\infty\}\]
-\[\Delta_S (s,t) = \begin{cases}
+\begin{equation}
+\label{defDelta}
+\Delta_S (s,t) = \begin{cases}
 \sum_{(v,w)\in P} d(v,w) & \textrm{if there is a path \( P \in S\) between \(s\) and \(t\)}\\
 \infty & \textrm{else}
 \end{cases}
-\]
+\end{equation}
 
 \todo{Bezeichnungen!  Pfeile über t?}
 
@@ -192,11 +194,12 @@ will be a subgraph of \(G_\mathbb{S}\).
 
 % Define the set of matchings as:
 
-For the integer program we introduce the variable \(m\) with the following domain and interpretation:
 
+For the integer program we introduce the variable \(m\) with the following domain and interpretation:
+\todo{Notation: \(\cong\) means ``defined as'' or ``interprete as''}
 \begin{align}
   m & \colon T \times T \to \{0,1\} \\
-  m & := \mathbf{1}_{\mathbb{S}}
+  m & \cong \mathbf{1}_{\mathbb{S}}
 \end{align}
 
 % subto matching_aus:
@@ -215,20 +218,23 @@ The following two equations capture the requirement that \(G_S\) consists of cyc
 To reflect the values of \(\Delta_S\) in the integer program we use the binary variables \(\delta\):
 \begin{align}
   \delta \colon T \times T \times \mathbb{R} & \to \{0,1\} \\
-  \delta\left(r, q, \Delta_S\left(r,q\right)\right) &= 1 \\
+  \delta\left(r, q, \Delta_S\left(r,q\right)\right) &\cong 1 \\
+  \label{onlyOne}
   \sum_{z \in \mathbb{R}} \delta(r, q, z) &\leq 1
 \end{align}
 
 For every path \(P \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
 \begin{align}
+\label{zwingHoch}
 \sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1 \textrm{;}
 \end{align}
 \ie{} if \(P \subseteq S\) then length of \(P\) gives
 the distance between its endpoints in \(S\).
 
-And for every \(p\)-\(q\)-cut \(C \subseteq T\):
+And for every \(r\)-\(q\)-cut \(C \subseteq T\) (with \(r \in C\)):
 \begin{align}
-  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (p,q, z)
+\label{zwingRunter}
+  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (r,q, z)
 \end{align}
 
 % \(G_S=(T,S\subseteq T^2)\)
@@ -261,12 +267,26 @@ We declared \(\Delta_S\) to map into \(R^+_0 \cup \{\infty\}\), but we can restr
 \todo{notation: \(\oplus\) is the Minkowski sum.}
 \begin{equation}
 \label{einfacher}
-\Delta_S (s,t) \in \{d (s,t)\} \oplus w \mathbb{Z}
+\Delta_S (s,t) \in \{d (s,t)\} \oplus w \mathbb{N}_0
 \end{equation}
 \todo{Proof why \ref{einfacher} holds!}
 
-Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w \mathbb{Z}\) vanish.
+Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w \mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is defined in \ref{defDelta} we can bound it from above and below. Call
+\[M := \sum_{(r,q) \in T \times T} d (r,q)\]
+and note
+\[0 \leq \Delta_S(s,t) \leq M \textrm{.}\]
 
+
+Now for every \(s,t \in T\) the equations in an infinite number of variables described by \ref{onlyOne} can be replaced by the finite:
+\begin{equation}
+  \label{onlyOneFinite}
+  \sum_{z \in \left(\left\{d (s,t)\right\} \oplus w \mathbb{N}_0 \right) \cap [0,M] } \delta(r, q, z) \leq 1
+\end{equation}
+
+\begin{align}
+\label{zwingRunter}
+  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (r,q, z)
+\end{align}
 
 \end{document}
 
