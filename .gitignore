@@ -10,3 +10,7 @@
 *.ps
 homogen.pdf
 .bzr/
+_region_.tex
+homogen.prv/
+prv_homogen.fmt
+
