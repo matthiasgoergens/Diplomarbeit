@@ -1,4 +1,5 @@
-\documentclass{amsart} % ams-article nehmen.
+\documentclass[a4paper]{amsart} % ams-article nehmen.
+\usepackage{a4}
 \usepackage{charter}
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
@@ -6,6 +7,8 @@
 \usepackage{amsfonts}
 \usepackage{units}
 \usepackage{amsmath}
+
+\usepackage{a4}
 
 \author{Matthias Görgens}
 
@@ -278,14 +281,18 @@ and note
 
 
 Now for every \(s,t \in T\) the equations in an infinite number of variables described by \ref{onlyOne} can be replaced by the finite:
-\begin{equation}
-  \label{onlyOneFinite}
-  \sum_{z \in \left(\left\{d (s,t)\right\} \oplus w \mathbb{N}_0 \right) \cap [0,M] } \delta(r, q, z) \leq 1
-\end{equation}
-
 \begin{align}
-\label{zwingRunterFinite}
-  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (r,q, z)
+  \label{onlyOneFinite}
+  \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta(r, q, z) & \leq 1 \\
+  \label{zwingRunterFinite}
+  \sum_{a \in C \times (T \setminus C)} m(a) & \geq \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta (r,q, z) \\
+\end{align}
+
+To simplify our notation we will substitue \(D\) for \(\delta\):
+\begin{align}
+  D \colon & T \times T \times \{0, 1, \dots,  \left\lceil \frac{M}{w} \right\rceil \}  \to \{0,1\} \\
+          & (s,       t,        n)                              \mapsto \delta (s,t, d(s,t) + n w)
+%  D (s,t,n) := 
 \end{align}
 
 \end{document}
