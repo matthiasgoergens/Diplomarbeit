@@ -265,8 +265,9 @@ violated constraints.
 
 \section{Finitizing the integer linear program}
 
-Equation \ref{matchBedingung} holds for all \(r \in T\) and \(T\) is already finite.
-We declared \(\Delta_S\) to map into \(R^+_0 \cup \{\infty\}\), but we can restrict the image even further:
+Equation \ref{matchBedingung} holds for all \(r \in T\) and \(T\) is
+already finite.  We declared \(\Delta_S\) to map into \(R^+_0 \cup
+\{\infty\}\), but we can restrict the image even further:
 \todo{notation: \(\oplus\) is the Minkowski sum.}
 \begin{equation}
 \label{einfacher}
@@ -274,13 +275,16 @@ We declared \(\Delta_S\) to map into \(R^+_0 \cup \{\infty\}\), but we can restr
 \end{equation}
 \todo{Proof why \ref{einfacher} holds!}
 
-Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w \mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is defined in \ref{defDelta} we can bound it from above and below. Call
+Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w
+\mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is
+defined in \ref{defDelta} we can bound it from above and below. Call
 \[M := \sum_{(r,q) \in T \times T} d (r,q)\]
 and note
 \[0 \leq \Delta_S(s,t) \leq M \textrm{.}\]
 
 
-Now for every \(s,t \in T\) the equations in an infinite number of variables described by \ref{onlyOne} can be replaced by the finite:
+Now for every \(s,t \in T\) the equations in an infinite number of
+variables described by \ref{onlyOne} can be replaced by the finite:
 \begin{align}
   \label{onlyOneFinite}
   \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta(r, q, z) & \leq 1 \\
@@ -288,12 +292,39 @@ Now for every \(s,t \in T\) the equations in an infinite number of variables des
   \sum_{a \in C \times (T \setminus C)} m(a) & \geq \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta (r,q, z) \\
 \end{align}
 
-To simplify our notation we will substitue \(D\) for \(\delta\):
+To simplify our notation we will introduce \(L := \{0, 1, \dots,
+\left\lceil \frac{M}{w} \right\rceil \}\) and substitue \(D\) for
+\(\delta\):
 \begin{align}
-  D \colon & T \times T \times \{0, 1, \dots,  \left\lceil \frac{M}{w} \right\rceil \}  \to \{0,1\} \\
+  D \colon & T \times T \times L  \to \{0,1\} \\
           & (s,       t,        n)                              \mapsto \delta (s,t, d(s,t) + n w)
 %  D (s,t,n) := 
 \end{align}
+Now we can rewrite \ref{onlyOneFinite} and \ref{zwingRunterFinite}:
+\begin{align}
+  \label{onlyOneFiniteN}
+  \sum_{n \in L} D (r, q, n) & \leq 1 \\
+  \label{zwingRunterFiniteN}
+  \sum_{a \in C \times (T \setminus C)} m(a) & \geq \sum_{n \in L} D (r,q, n)
+\end{align}
+
+Putting \label{zwingHoch} into the new form poses bigger
+problem. \todo{hier erklaerung einfuegen.}  For every path \(P
+\subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
+\begin{align}
+\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
+\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \left[ \sum_{a \in P} d \left(a\right) \right] \right) - 1 \\
+\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \frac{\left(\sum_{a \in P} d \left(a\right)\right) -d(r,q)}{w}\right) - 1  \\
+\label{zwingHochFiniteN}
+\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1
+\end{align}
+
+\todo{Vorher koennten wir n fuer jeden Bogen unabhaeging waehlen.  Jetzt
+  muessen wir eine Abhaengigkeit fordern.
+
+  Was ist die Laenge von \(P\) in terms of n in abhaengigkeit der
+  zwischenschritte?  Gluecklicherweise koennen wir das statisch
+  bestimmen!  Und das hat auch geklappt in \ref{zwingHochFiniteN}}
 
 \end{document}
 
