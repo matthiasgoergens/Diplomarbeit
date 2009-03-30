@@ -195,8 +195,6 @@ Let \(T\) be a timetable.  And let \(G_\mathbb{S} := (T, \mathbb{S} =
 T \times T) \) be its associated complete graph.  A schedule \(G_S = (T, S \subseteq \mathbb{S})\)
 will be a subgraph of \(G_\mathbb{S}\).
 
-% Define the set of matchings as:
-
 
 For the integer program we introduce the variable \(m\) with the following domain and interpretation:
 \todo{Notation: \(\cong\) means ``defined as'' or ``interprete as''}
@@ -262,6 +260,8 @@ show that there is a finite subset of constraints that define the same
 polytope.  And we will show how to define a polynomial oracle to find
 violated constraints.
 
+\todo{Fuege die eigentliche homogenitaetsbedingung hinzu!}
+
 
 \section{Finitizing the integer linear program}
 
@@ -308,12 +308,12 @@ Now we can rewrite \ref{onlyOneFinite} and \ref{zwingRunterFinite}:
   \sum_{a \in C \times (T \setminus C)} m(a) & \geq \sum_{n \in L} D (r,q, n)
 \end{align}
 
-Putting \label{zwingHoch} into the new form poses bigger
+Putting \ref{zwingHoch} into the new form poses bigger
 problem. \todo{hier erklaerung einfuegen.}  For every path \(P
 \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
 \begin{align}
-\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
-\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \left[ \sum_{a \in P} d \left(a\right) \right] \right) - 1 \\
+%\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
+%\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \left[ \sum_{a \in P} d \left(a\right) \right] \right) - 1 \\
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \frac{\left(\sum_{a \in P} d \left(a\right)\right) -d(r,q)}{w}\right) - 1  \\
 \label{zwingHochFiniteN}
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1
@@ -326,5 +326,21 @@ problem. \todo{hier erklaerung einfuegen.}  For every path \(P
   Was ist die Laenge von \(P\) in terms of n in abhaengigkeit der
   zwischenschritte?  Und das hat auch geklappt in \ref{zwingHochFiniteN}}
 
-\end{document}
+\todo{Formuliere das verendlichte Problem konkret.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
 
+\section{Row (and Column) Generation}
+Even the finitized problem suffers from an exuberant
+size. \todo{Abschaetzung der Groesse angeben.  O(Pfade + Cuts)} But we
+can start solving with only the equations \ref{matchBedingung} that
+guarantee a flow free of sources and sinks.
+
+We analyse the solutions obtained.  The variables \(m\) specify a
+graph made of cycles.  For every cycle we can get the distance
+\(\Delta\) between all of its nodes by straight-forward counting in
+time \(O(T^2)\) \todo{Details zum Zaehlen.} (or employing Bellman-Ford
+etc).  All distances between nodes in different cycles are \(\infty\)
+by definition \ref{defDelta}.
+
+First check \ref{onlyOne} for every arc.
+
+\end{document}
