@@ -32,8 +32,8 @@
 
 
 \newcommand{\ol}[1]{\overline{#1}}
-% \newcommand{\todo}[1]{\marginpar{#1}}
-\newcommand{\todo}[1]{\footnote{#1}}
+\newcommand{\todo}[1]{\marginpar{#1}}
+%\newcommand{\todo}[1]{\footnote{#1}}
 
 \DeclareMathOperator{\In}{in}
 \DeclareMathOperator{\Out}{out}
@@ -177,7 +177,7 @@ For arcs in a digraph \(G=(V,A)\) we will use the following notation:
 \ina\colon  V &\to \mathcal{P}(A) \\
 v &\mapsto \left(V \times \{v\}\right) \cap A\\
 %\end{align*}
-%\begin{align*}
+2%\begin{align*}
 \outa\colon  V &\to \mathcal{P}(A) \\
 v &\mapsto \left(\{v\} \times V\right) \cap A\\
 %\end{align*}
@@ -248,11 +248,6 @@ And for every \(r\)-\(q\)-cut \(C \subseteq T\) (with \(r \in C\)):
 
 % relation durch Übersetzung von Nutzfahrt ersetzen.
 
-
-% Let \(T = \mathbb{R}/{n \mathbb{Z}} \)
-% be the time that 
-
-
 \todo{welche constraints?  labels und refs.  convex set vs gitterpunkte?}
 Those constraints define a convex set.  Alas we can't use them
 directly, since there are an infinite number of constraints.  But
@@ -262,7 +257,6 @@ polytope.  And we will show how to define a polynomial oracle to find
 violated constraints.
 
 \todo{Fuege die eigentliche homogenitaetsbedingung hinzu!}
-
 
 \section{Finitizing the integer linear program}
 
@@ -330,18 +324,51 @@ problem. \todo{hier erklaerung einfuegen.}  For every path \(P
 \todo{Formuliere das verendlichte Problem konkret.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
 
 \section{Row (and Column) Generation}
-Even the finitized problem suffers from an exuberant
-size. \todo{Abschaetzung der Groesse angeben.  O(Pfade + Cuts)} But we
-can start solving with only the equations \ref{matchBedingung} that
-guarantee a flow free of sources and sinks.
+Even the finitized problem suffers from an exuberant size.
+\todo{Abschaetzung der Groesse angeben.  O(Pfade + Cuts).}  But we can
+start solving with only the equations \ref{matchBedingung} that
+guarantee a flow free of sources and sinks and the variables \(m\).
+All other variables are treated as parameters set to zero.
 
 We analyse the solutions obtained.  The variables \(m\) specify a
 graph made of cycles.  For every cycle we can get the distance
 \(\Delta\) between all of its nodes by straight-forward counting in
 time \(O(T^2)\) \todo{Details zum Zaehlen.} (or employing Bellman-Ford
 etc).  All distances between nodes in different cycles are \(\infty\)
-by definition \ref{defDelta}.
+by definition \ref{defDelta}.  \todo{Perhaps use lazy evaluation to enumerate
+  all flaws.  Pick the first.}
 
-First check \ref{onlyOne} for every arc.
+First check \ref{onlyOne} for every pair of vertices.  If a pair, say
+\(s,t\), violates \ref{onlyOne}, let \[B := \left\{z\leq M \mid
+  \delta(r,q,z) = 1\right\} \cap {\left\{d (s,t)\right\} \oplus w
+  \mathbb{N}_0}\] and add
+\begin{equation}
+  \sum_{z \in B} \delta(r, q, z)  \leq 1
+\end{equation}
+to the problem.
+  
+
+If \ref{onlyOne} holds, \(D\) implies a \(\ol{\Delta_S}\).  Calculate
+\(\Delta_S\).  Fix a pair of vertices \(v,w\).  If \(\ol{\Delta_S
+  (v,w)} = \Delta_S(v,w)\), do nothing.  Otherwise:
+\begin{itemize}
+  \item If \(\Delta_S < \infty\), then let \(P\) be the path between \(v\) and \(w\) in \(S\) and add the row
+   \begin{equation}
+    \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1 \textrm{.}
+    \end{equation} 
+ \item If \(\Delta_S = \infty\), then let \(C \subseteq S\) be the cycle that includes \(v\) and add:
+    \begin{equation}
+      \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{n \in L} D (r,q, n)
+    \end{equation}
+    to the problem.
+\end{itemize}
+
+\todo{Describe algorithm to find/produce a violated row.  Analyse its runtime.  Data structures?}
+
+\todo{Row generation and elimination!  Or more specifically: Replacement by stricter constraints.  (Ignore until later.  Just add rows as needed.  Cplex will also take care of variables.)}
+
+At the beginning there will be variables that are not present in any
+constraint.  The solver \textsc{Cplex} will only add them to the
+problem as the constraints make them have an impact.
 
 \end{document}
