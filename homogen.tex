@@ -32,8 +32,8 @@
 
 
 \newcommand{\ol}[1]{\overline{#1}}
-\newcommand{\todo}[1]{\marginpar{#1}}
-%\newcommand{\todo}[1]{\footnote{#1}}
+%\newcommand{\todo}[1]{\marginpar{#1}}
+\newcommand{\todo}[1]{\footnote{#1}}
 
 \DeclareMathOperator{\In}{in}
 \DeclareMathOperator{\Out}{out}
@@ -71,6 +71,69 @@
 \todo{Eigene konsistente Definitionen für Zug, Nutzfahrt etc:\\
 Nutzfahrt = Train\\
 Zug = set of trains, set}
+
+\section{Introduction}
+Unlike individual traffic in cars, railroads in Germany are run by
+only a few companies and of those Deutsche Bahn controls a huge
+majority.  In principle the planning required can be centralized for
+coordination.  Thus one can exploit effects of synergy.  Even
+relatively modest relative improvements can have a huge absolute
+impact.  So it is worthwhile to solve the encountered problems to
+optimality.
+
+One large block---or even the largest--- of opportunities for
+mathematical planning in this contexts lies in the area of scheduling.
+Currently at Deutsche Bahn the system for planning schedules is
+multi-tiered.  This paper has been written while working at department
+GSU1 of Deutsche Bahn Mobility Logistics.  The focus at GSU1 is on
+improving the process of (strategic) vehicle schedulings.
+
+As a passenger one only interfaces with the timetables, that specify
+when and where a train will arrive and depart.  One does not care too
+much which specific physicial train one is using or what it does
+before and after the trip.
+
+\todo{Ein abregenzendes Wort zu timetable und operationeller Plannung
+  im Vergleich.}
+
+Naturally the railroad company does not create and annihilate trains
+for every trip.  It has to re"use them.  Various costs have to be
+taken into account.  Introducing our first bit of notation we call
+trips offered to the customer \textit{service
+  trips}\todo{Nutzfahrt=service trip} and other trips will be called
+\textit{empty trips}\todo{Leerfahrten}.  Empty trips may be necessary
+because one station may have more service trips starting than
+arriving.  Or it could keep the balance in theory, but only with long
+unproductive standing times.
+
+The most important objective concerns the minimisation of the number
+of trains needed to honour all required service trips in the
+timetable.  Avoiding empty trips ranks second, because they cost
+man-hours, fuel, and bring the next obligatory maintenance--- whose
+intervalls are based on distance travelled---closer.
+
+Deutsche Bahn has only recently brought sophisticated math to bear on
+these problems.  There are legacy heuristics in place that solved (and
+do solve) scheduling, but with no guarantees of optimality.  Also
+customs and preferences have developed.
+
+For example planners\todo{Wer genauer?} prefer their schedule to be as
+homogene as possible.  In former times each day has been planned in
+isolation first and only then have those plans been merged.  With
+identical timetables\todo{Zusammenhang genauer erklaeren.} for each
+working day of the week\todo{Zur Wiederholung im Wochenabstand muss
+  frueher etwas gesagt werden.} one got identical vehicle schedulings
+for those days that were only slightly tweaked at the beginning and
+end of the working week to fit with the sparser timetable of the
+weekend.
+
+The new methods based on mixed integer programming consider the whole
+week right from the start.  Apart from the partly repeating schedule
+they have no cause to use similar vehicle schedulings on the working
+days.  But planners have come to price the homogenity.\todo{Why?}
+\section{Thanks}
+Thanks to Hanno Sch"ulldorf, Volker Kaibel and Andreas Huck for their help.
+
 \section{Some definitions}
 
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
@@ -113,7 +176,7 @@ integral multiply of \(w\) (\ie{} whole days):
 Let \(C\) be the set of all those classes.
 
 Ideally each class has exactly one member for each day of the week.
-That would allow \(w = 1 \textrm{day}\) instead of \(w = 7 \textrm{days}\)
+That would allow \(w = 1 \textrm{ day}\) instead of \(w = 7 \textrm{ days}\)
 and enable a schedule that repeats perfectly every day.  But more
 typical me observe a lot of classes in a timetable with one member
 each day from Monday to Friday and none on the weekends.  Or even less
@@ -123,7 +186,7 @@ We will define a distance function \(\Delta_S (s,t)\) on paths in
 \(S\) as the sum of arc lengths \(d\) in the path between the
 trains \(s\) and \(t\) or \(\infty\) if no such path exists.  We can
 talk about \emph{the} path \(P \subseteq S\) between \(s\) and \(t\),
-because \(G_S\) consists only of cycles.
+because \(G_S\) consists only of disjoint cycles.
 \[\Delta_{S}\colon T \times T \to \mathbb{R}^+_0 \cup \{\infty\}\]
 \begin{equation}
 \label{defDelta}
@@ -363,7 +426,8 @@ If \ref{onlyOne} holds, \(D\) implies a \(\ol{\Delta_S}\).  Calculate
     to the problem.
 \end{itemize}
 
-\todo{Describe algorithm to find/produce a violated row.  Analyse its runtime.  Data structures?}
+\todo{Describe algorithm to find/produce a violated row.  Analyse its
+  runtime.  Data structures?}
 
 \todo{Row generation and elimination!  Or more specifically:
   Replacement by stricter constraints.  (Ignore until later.  Just add
@@ -371,6 +435,20 @@ If \ref{onlyOne} holds, \(D\) implies a \(\ol{\Delta_S}\).  Calculate
 
 At the beginning there will be variables that are not present in any
 constraint.  A solver like \textsc{Cplex} will only add them to the
-problem as the constraints make them have an impact.
+problem as the constraints make them have an impact \ie as they show
+up with at least one non-zero coefficient in at least one constraint
+or the objective function.
+
+
+\section{Balancing homogenity with other objectives?}
+Homogenity is a very soft objective and its value is hard to measure
+in money.  The effort invested in achieving it, is intended to enhance
+adoption of the other optimizing work done at department GSU1.
+
+\section{Implementation?}
+
+Implementation will be done in the Cplex-framework existing at
+department GSU1 of Deutsche Bahn Mobility Logistics AG.
+\section{Conclusion}
 
 \end{document}
