@@ -68,10 +68,6 @@
 \maketitle
 \todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 
-\todo{Eigene konsistente Definitionen für Zug, Nutzfahrt etc:\\
-Nutzfahrt = Train\\
-Zug = set of trains, set}
-
 \section{Introduction}
 Unlike individual traffic in cars, railroads in Germany are run by
 only a few companies and of those Deutsche Bahn controls a huge
@@ -99,59 +95,73 @@ before and after the trip.
 Naturally the railroad company does not create and annihilate trains
 for every trip.  It has to re"use them.  Various costs have to be
 taken into account.  Introducing our first bit of notation we call
-trips offered to the customer \textit{service
-  trips}\todo{Nutzfahrt=service trip} and other trips will be called
-\textit{empty trips}\todo{Leerfahrten}.  Empty trips may be necessary
-because one station may have more service trips starting than
-arriving.  Or it could keep the balance in theory, but only with long
-unproductive standing times.
+trips offered to the customer \textit{service trips} (or Nutzfahrten
+in German) and other trips will be called \textit{empty trips}
+(Leerfahrten in German).  Empty trips may be necessary because a
+station may have an unequal number of service trips departing and
+arriving over the course of a week.  Or the number is equal, and the
+station could keep the balance in theory, but only with long
+unproductive standing times for the trains.
 
-The most important objective concerns the minimisation of the number
+The most important objective concerns the minimization of the number
 of trains needed to honour all required service trips in the
-timetable.  Avoiding empty trips ranks second, because they cost
-man-hours, fuel, and bring the next obligatory maintenance--- whose
-intervalls are based on distance travelled---closer.
+timetable.  Avoiding empty trips ranks second.  They cost man-hours,
+fuel, and bring the next obligatory maintenance closer.  Most types of
+maintenance are scheduled every time a train has travelled a certain
+distance.
+
+Most timetables are in use for half a year.  They tend to repeat every
+week.  At the current state of the art, strategic vehicle schedule
+planning ignores the start and end of the period and pretends to work
+on an infinite cycle of identical weeks.  This allows to collapse an
+infite linear model of time to a cycle of just one week.
+
+Strategic vehicle schedule planning in essence takes in cyclic
+timetables (plus possible non-cyclic extra trips) and puts out vehicle
+schedules to the operational planners, who \eg{} manage the transition
+between schedules.
 
 Deutsche Bahn has only recently brought sophisticated math to bear on
-these problems.  There are legacy heuristics in place that solved (and
+these issues.  There are legacy heuristics in place that solved (and
 do solve) scheduling, but with no guarantees of optimality.  Also
 customs and preferences have developed.
 
-For example planners\todo{Wer genauer?} prefer their schedule to be as
-homogene as possible.  In former times each day has been planned in
-isolation first and only then have those plans been merged.  With
-identical timetables\todo{Zusammenhang genauer erklaeren.} for each
-working day of the week\todo{Zur Wiederholung im Wochenabstand muss
-  frueher etwas gesagt werden.} one got identical vehicle schedulings
-for those days that were only slightly tweaked at the beginning and
-end of the working week to fit with the sparser timetable of the
-weekend.
+For example planners prefer their schedule to be as homogenous as
+possible.  In former times each day has been planned in isolation
+first and only then have those plans been merged.  With identical
+timetables for each working day of the week one got identical vehicle
+schedulings for those days that were only slightly tweaked at the
+beginning and end of the working week to fit with the sparser
+timetable of the weekend.
 
 The new methods based on mixed integer programming consider the whole
 week right from the start.  Apart from the partly repeating schedule
 they have no cause to use similar vehicle schedulings on the working
-days.  But planners have come to price the homogenity.\todo{Why?}
+days.  But planners have come to price the homogenity as an end in
+itself.\todo{Why?}
 \section{Thanks}
-Thanks to Hanno Sch"ulldorf, Volker Kaibel and Andreas Huck for their help.
+Thanks to Hanno Sch"ulldorf, Volker Kaibel and Andreas Huck for their
+help.
 
 \section{Some definitions}
 
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
 railway stations, maintenance shops.  Now look at \label{trains}
-\textit{trains} \((v, t_v, w, t_w) \in \left(V \times \mathbb{R}\right)^2 \)
-where \(v\), \(t_v\) name the station and time of departure, and
-\(w\), \(t_v\) name the station and time of arrival.  We call a set of
-trains \(T \subseteq \left(V \times \mathbb{R}\right)^2\) a timetable.  (In
-practise \(T\) can also be a multiset.)
+\textit{trains} \((v, t_v, w, t_w) \in \left(V \times
+  \mathbb{R}\right)^2 \) where \(v\), \(t_v\) name the station and
+time of departure, and \(w\), \(t_v\) name the station and time of
+arrival.  We call a set of trains \(T \subseteq \left(V \times
+  \mathbb{R}\right)^2\) a timetable.  (In practise \(T\) can also be a
+multiset.)
 
-We want to focus our attention to cyclic timetables.  A timetable \(T\)
-is \label{cyclic} \textit{cyclic}, iff there exists a period \(w \in
-\mathbb{R}^+\), so that for each train \((v, t_v, w, t_w) \in T\)
-the trains \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\)
-are also in \(T\).  We will identify cyclic timetables with their
-image under the canonic morphism
-\(\varphi \colon \left(V \times \mathbb{R}\right)^2
-\to \left(V \times \mathbb{R}/{\left(w \mathbb{Z}\right)}\right)^2\).
+We want to focus our attention to cyclic timetables.  A timetable
+\(T\) is \label{cyclic} \textit{cyclic}, iff there exists a period \(w
+\in \mathbb{R}^+\), so that for each train \((v, t_v, w, t_w) \in T\)
+the trains \(\{(v, t_v+n w, w, t_w +n w) \mid n \in \mathbb{Z}\}\) are
+also in \(T\).  We will identify cyclic timetables with their image
+under the canonic morphism \(\varphi \colon \left(V \times
+  \mathbb{R}\right)^2 \to \left(V \times \mathbb{R}/{\left(w
+      \mathbb{Z}\right)}\right)^2\).
 
 A timetable only fixes the services offered by the railroad company.
 But it does not specify where the locomotives and waggons in use come
@@ -165,7 +175,7 @@ consists of cycles.
 
 In practise timetables repeat every week \ie{} \(w = 7 \textrm{ days}\).
 This work will deal with timetables that show more structure: Fix an
-interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\) (\eg for
+interval \(d := \frac{w}{n}\) with \(n \in \mathbb{N}^+\) (\eg{} for
 days in a week, let \(n=7\)).  We partition the trains into
 equivalence classes that share the same arrival and departure
 stations, and whose arrival and departure times only differ by an
@@ -198,7 +208,7 @@ because \(G_S\) consists only of disjoint cycles.
 
 \todo{Bezeichnungen!  Pfeile über t?}
 
-\todo{Mehrwöchige Fahrten!  Zurückgehen auf die ursprüngliche nicht-zyklische Version!}
+\todo{Mehrwöchige Fahrten:  Zurückgehen auf die ursprüngliche nicht-zyklische Version!}
 
 Of course we have only moved the problem.  We still have to define the length of a single arc:  \(d(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
 \[
@@ -214,7 +224,7 @@ departure.
 
 To guarantee homogenity one might \naively{} propose that all members
 of one class \(c_1\) only be succeeded by members of the same class
-\(c_2\).  But that would not be practial, because \eg a class that is
+\(c_2\).  But that would not be practial, because \eg{} a class that is
 offered all week would be banned from being connected to a class of trains that
 are not offered on the weekend.
 
@@ -240,7 +250,7 @@ For arcs in a digraph \(G=(V,A)\) we will use the following notation:
 \ina\colon  V &\to \mathcal{P}(A) \\
 v &\mapsto \left(V \times \{v\}\right) \cap A\\
 %\end{align*}
-2%\begin{align*}
+%\begin{align*}
 \outa\colon  V &\to \mathcal{P}(A) \\
 v &\mapsto \left(\{v\} \times V\right) \cap A\\
 %\end{align*}
@@ -260,21 +270,16 @@ T \times T) \) be its associated complete graph.  A schedule \(G_S = (T, S \subs
 will be a subgraph of \(G_\mathbb{S}\).
 
 
-For the integer program we introduce the variable \(m\) with the following domain and interpretation:
-\todo{Notation: \(\cong\) means ``defined as'' or ``interprete as''}
+For the integer program we introduce the variable \(m\) with the
+following domain and interpretation:
 \begin{align}
   m & \colon T \times T \to \{0,1\} \\
   m & \cong \mathbf{1}_{\mathbb{S}}
 \end{align}
+Where \(\cong\) means ``defined as'' or ``to be interpreted as''.
 
-% subto matching_aus:
-%       forall <v> in V:
-%       	     sum <w> in V: umlauf[v,w] == 1;
-% subto matching_ein:
-%       forall <w> in V:
-%       	     sum <v> in V: umlauf[v,w] == 1;
-
-The following two equations capture the requirement that \(G_S\) consists of cycles.  For all \(r \in T\):
+The following two equations capture the requirement that \(G_S\)
+consists of disjoint cycles.  For all \(r \in T\):
 \begin{align}
   \label{matchBedingung}
   \sum_{a \in \ina(r)}  m(a) = \sum_{a \in \outa(r)} m(a) = 1
