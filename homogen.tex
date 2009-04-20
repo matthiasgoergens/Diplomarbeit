@@ -44,10 +44,19 @@
 \newcommand{\inv}{\ensuremath{\dot{\In}}}
 \newcommand{\outv}{\ensuremath{\dot{\Out}}}
 
+\newcommand{\abs}[1]{\ensuremath{\left|#1\right|}}
+% lr := left right
+\newcommand{\lr}[1]{\ensuremath{\left( #1 \right)}}
+% lrM := left right fuer Mengen
+\newcommand{\lrM}[1]{\ensuremath{\left\{ #1 \right\}}}
+
+
 \usepackage{hyperref}
 \begin{document}
 
 \title{Homogeneous vehicle schedules}
+
+
 
 \begin{abstract}
   Although most railroad timetables remain in use for half a
@@ -262,6 +271,7 @@ v &\mapsto \left\{w \colon \left(v,w\right) \in \outa\left(v\right) \right\}\\
 \end{align*}
 
 \section{An infinite integer linear program}
+\label{infIP}
 
 Let \(T\) be a timetable.  And let \(G_\mathbb{S} := (T, \mathbb{S} =
 T \times T) \) be its associated complete graph.  A schedule \(G_S =
@@ -291,7 +301,7 @@ To reflect the values of \(\Delta_S\) in the integer program we use the binary v
   \sum_{z \in \mathbb{R}} \delta(r, q, z) &\leq 1
 \end{align}
 
-For every path \(P \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
+For every simple path \(P \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
 \begin{align}
 \label{zwingHoch}
 \sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1 \textrm{;}
@@ -334,12 +344,14 @@ incorporate the actual homogenity constraints laid out in equation
 \item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
 \item then for every \(z \in \mathbb{R}\)
 \begin{equation}
-\label{homoEqFin}
+\label{homoEqLin}
   \delta    (r_1, \ol{r_1}, z) = \delta (r_2, \ol{r_2}, z)\textrm{.}
 \end{equation}
 \end{itemize}
 
 \section{Finitizing the integer linear program}
+\label{finitizing}
+\todo{Motivation!}
 
 Equation \ref{matchBedingung} holds for all \(r \in T\) and \(T\) is
 already finite.  We declared \(\Delta_S\) to map into \(R^+_0 \cup
@@ -354,7 +366,9 @@ already finite.  We declared \(\Delta_S\) to map into \(R^+_0 \cup
 Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w
 \mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is
 defined in \ref{defDelta} we can bound it from above and below. Call
-\[M := \sum_{(r,q) \in T \times T} d (r,q)\]
+\begin{equation}
+M := \sum_{(r,q) \in T \times T} d (r,q)
+\end{equation}
 and note
 \[0 \leq \Delta_S(s,t) \leq M \textrm{.}\]
 
@@ -363,14 +377,21 @@ Now for every \(s,t \in T\) the equations in an infinite number of
 variables described by \ref{onlyOne} can be replaced by the finite:
 \begin{align}
   \label{onlyOneFinite}
-  \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta(r, q, z) & \leq 1 \\
-  \label{zwingRunterFinite}
-  \sum_{a \in C \times (T \setminus C)} m(a) & \geq \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta (r,q, z) \\
+  \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta(r, q, z) & \leq 1 
 \end{align}
 
-To simplify our notation we will introduce \(L := \{0, 1, \dots,
-\left\lceil \frac{M}{w} \right\rceil \}\) and substitue \(D\) for
-\(\delta\):
+A similar transformation turns constraint \ref{zwingRunter} into
+\begin{align}
+  \label{zwingRunterFinite}
+  \sum_{a \in C \times (T \setminus C)} m(a) & \geq \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta (r,q, z) \textrm{.}
+\end{align}
+
+To simplify our notation we will introduce
+\begin{equation}
+\label{defL}
+L := \{0, 1, \dots,\left\lceil \frac{M}{w} \right\rceil \}
+\end{equation}
+and substitue \(D\) for \(\delta\):
 \begin{align}
   D \colon & T \times T \times L  \to \{0,1\} \\
           & (s,       t,        n)                              \mapsto \delta (s,t, d(s,t) + n w)
@@ -387,10 +408,13 @@ Now we can rewrite \ref{onlyOneFinite} and \ref{zwingRunterFinite}:
 Putting \ref{zwingHoch} into the new form poses bigger
 problem. \todo{hier erklaerung einfuegen.}  For every path \(P
 \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
-\begin{align}
+\[
 %\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
 %\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \left[ \sum_{a \in P} d \left(a\right) \right] \right) - 1 \\
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \frac{\left(\sum_{a \in P} d \left(a\right)\right) -d(r,q)}{w}\right) - 1  \\
+\]
+and thus:
+\begin{align}
 \label{zwingHochFiniteN}
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1
 \end{align}
@@ -404,10 +428,77 @@ problem. \todo{hier erklaerung einfuegen.}  For every path \(P
 
 \todo{Formuliere das verendlichte Problem konkret-komplett.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
 
-\section{Row (and Column) Generation}
-Even the finitized problem suffers from an exuberant size.
-\todo{Abschaetzung der Groesse angeben.  O(Pfade + Cuts).}  But we can
-start solving with only the equations \ref{matchBedingung} that
+We can express the constraint \ref{homoEqLin} in terms of \(D\), too:
+\begin{itemize}
+\item Given classes \(z, \ol{z} \in C\)
+\item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\)
+\item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
+\item then for every \(n \in L\)
+\begin{equation}
+\label{homoEqFin}
+  D    (r_1, \ol{r_1}, n) = D (r_2, \ol{r_2}, n)\textrm{.}
+\end{equation}
+\end{itemize}
+
+\section{Estimating the size of the finite integer linear program}
+In section \ref{infIP} we have introduced an integer linear program to
+express the problem of homogenity in vehicle schedulings.  Alas that
+program was infinite and thus intractable.  In section
+\ref{finitizing} we have finitized the problem.  In theory one could
+now feed it into a generic linear program solver and be done with it.
+
+But even the finitized problem suffers from an exuberant size.
+
+How bad is the situation?  The system is made up of binary variables.
+There is one variable \(m\) for each arc in the complete graph
+\(G_\mathbb{S}\).  So this part takes \(O\left(\left|
+    T\right|^2\right)\) variables, where the \(T\) was the number of
+service trips.  To model the (possible infinite) length of the path in
+\(G_S\) between any two service trips, \(D\) is used.  \(D\) spans
+\(O\lr{\abs{T}^2 \abs{L}} =
+O\lr{\abs{T}^2 \frac{M}{w}} \) binary variables.  We
+take \(w\) to be a constant (usually seven days) and estimate \(M\):
+\begin{equation}
+M = \sum_{(r,q) \in T \times T} d (r,q) \leq \left|T\right|^2 \max_{(r,q) \in T \times T} d(r,q)
+\end{equation}
+In practise in Central-Europe trips--- both empty and service trips
+---are much shorter than half a week.  So we can further estimate:
+\begin{equation}
+M \leq \left|T\right|^2 w
+\end{equation}
+Thus \(O\lr{\abs{T}^4}\) variables constitute \(m\), which
+dwarves the contribution of \(D\).
+
+\todo{Referenzen zu den relevanten Gleichungen und Namen einfuehren
+  fuer die O() schaetzungen.}
+
+All in all the problem lives in relatively small polynomial number of
+binary variables.  However the number of constraints is exponential:
+
+Equations \ref{matchBedingung} describe the conservation of flow.
+They take up a modest \(O\lr{\abs{T}}\) rows.  Equations
+\ref{onlyOneFiniteN} restrict \(D\) to at most one \(1\)-entry per
+pair of service trips, thus ensuring an isomorphism between \(D\) and
+\(\ol{\Delta}_S\).  This takes \(O \lr{\abs{T}^2}\) rows.  So far the
+number of constraints has been constrained polynomial in \(\abs{T}\).
+
+Equations \ref{zwingRunterFiniteN} come in one version for each cut
+\(C \subseteq T\).  Since there are \(O \lr{2^{\abs{T}}}\) cuts, we
+need as many rows.  The number of simple paths \(P \subseteq
+\mathbb{S}\) that connect every pair of service trips \(r\) and \(q\)
+determines the number of rows needed for implementation of constraint
+\ref{zwingHochFiniteN}.  It is of equally staggering proportions:
+\(O\lr{2^{\abs{T}} \abs{T}!}\) in a lose estimate from above, since
+there are \(O\lr{2^{\abs{T}}}\) subsets of service trips that can be
+ordered in less than \(O \lr{\abs{T}!}\) ways each.
+
+Taking everything together, we need \(O\lr{\abs{T}^4}\) variables and
+\(O\lr{2^{\abs{T}} \abs{T}!}\) constraints.  The next section will
+deal with ways to reduce the number of constraints (and incidentally
+the number variables, too).
+
+\section{Delayed row generation}
+We can start solving with only the equations \ref{matchBedingung} that
 guarantee a flow free of sources and sinks and the variables \(m\).
 All other variables are treated as parameters set to zero.
 
@@ -420,9 +511,12 @@ by definition \ref{defDelta}.  \todo{Perhaps use lazy evaluation to enumerate
   all flaws.  Pick the first.}
 
 First check \ref{onlyOne} for every pair of vertices.  If a pair, say
-\(s,t\), violates \ref{onlyOne}, let \[B := \left\{z\leq M \mid
+\(s,t\), violates \ref{onlyOne}, let 
+\begin{equation}
+B := \left\{z\leq M \mid
   \delta(r,q,z) = 1\right\} \cap {\left\{d (s,t)\right\} \oplus w
-  \mathbb{N}_0}\] and add
+  \mathbb{N}_0}
+\end{equation} and add
 \begin{equation}
   \sum_{z \in B} \delta(r, q, z)  \leq 1
 \end{equation}
@@ -458,8 +552,8 @@ up with at least one non-zero coefficient in at least one constraint
 or the objective function.
 
 \section{Balancing homogenity with other objectives?}
-Homogenity is a very soft objective, that is its value is hard to
-measure in money.  Partly the effort invested in achieving homogenity is
+Homogenity is a very soft objective, \ie its value is hard to measure
+in money.  Partly, the effort invested in achieving homogenity is
 intended to enhance adoption of the other optimizing work done at
 department GSU1.
 
