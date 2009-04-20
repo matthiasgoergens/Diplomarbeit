@@ -322,7 +322,22 @@ show that there is a finite subset of constraints that define the same
 polytope.  And we will show how to define a polynomial oracle to find
 violated constraints.
 
-\todo{Fuege die eigentliche homogenitaetsbedingung hinzu!}
+Now we only have defined a way to measure time-distances in the
+vehicle schedule in a linear integer program.  We still have to
+incorporate the actual homogenity constraints laid out in equation
+\ref{homoEq}.  But this is simple as we only have to convert
+\ref{homoEq} from using \(\ol{\Delta}_S\) to an expression in terms of \(\delta\).
+
+\begin{itemize}
+\item Given classes \(z, \ol{z} \in C\)
+\item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\)
+\item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
+\item then for every \(z \in \mathbb{R}\)
+\begin{equation}
+\label{homoEqFin}
+  \delta    (r_1, \ol{r_1}, z) = \delta (r_2, \ol{r_2}, z)\textrm{.}
+\end{equation}
+\end{itemize}
 
 \section{Finitizing the integer linear program}
 
@@ -387,7 +402,7 @@ problem. \todo{hier erklaerung einfuegen.}  For every path \(P
   Was ist die Laenge von \(P\) in terms of n in abhaengigkeit der
   zwischenschritte?  Und das hat auch geklappt in \ref{zwingHochFiniteN}}
 
-\todo{Formuliere das verendlichte Problem konkret.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
+\todo{Formuliere das verendlichte Problem konkret-komplett.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
 
 \section{Row (and Column) Generation}
 Even the finitized problem suffers from an exuberant size.
@@ -442,13 +457,13 @@ problem as the constraints make them have an impact \ie as they show
 up with at least one non-zero coefficient in at least one constraint
 or the objective function.
 
-
 \section{Balancing homogenity with other objectives?}
-Homogenity is a very soft objective and its value is hard to measure
-in money.  The effort invested in achieving it, is intended to enhance
-adoption of the other optimizing work done at department GSU1.
+Homogenity is a very soft objective, that is its value is hard to
+measure in money.  Partly the effort invested in achieving homogenity is
+intended to enhance adoption of the other optimizing work done at
+department GSU1.
 
-\section{Implementation?}
+\section{Implementation}
 
 Implementation will be done in the \textsc{Cplex}-framework existing at
 department GSU1 of Deutsche Bahn Mobility Logistics AG.
