@@ -167,21 +167,21 @@ help.
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
 railway stations, maintenance shops.  Now look at \label{trains}
 \textit{trains} \((v, t_v, w, t_w) \in \left(V \times
-  \mathbb{R}\right)^2 \) where \(v\), \(t_v\) name the station and
+  \mathbb{Q}\right)^2 \) where \(v\), \(t_v\) name the station and
 time of departure, and \(w\), \(t_v\) name the station and time of
 arrival.  We call a set of trains \(T \subseteq \left(V \times
-  \mathbb{R}\right)^2\) a timetable.  (In practise \(T\) can also be a
+  \mathbb{Q}\right)^2\) a timetable.  (In practise \(T\) can also be a
 multiset.)
 
 We want to focus our attention to cyclic timetables.
 \begin{defn} A timetable \(T\) is \label{cyclic} \textit{cyclic}, iff
-  there exists a period \(w \in \mathbb{R}^+\), so that for each train
+  there exists a period \(w \in \mathbb{Q}^+\), so that for each train
   \((v, t_v, w, t_w) \in T\) the trains \(\{(v, t_v+n w, w, t_w +n w)
   \mid n \in \mathbb{Z}\}\) are also in \(T\).
 \end{defn}
 We will identify cyclic timetables with their image under the canonic
-morphism \(\varphi \colon \left(V \times \mathbb{R}\right)^2 \to
-\left(V \times \mathbb{R}/{\left(w \mathbb{Z}\right)}\right)^2\).
+morphism \(\varphi \colon \left(V \times \mathbb{Q}\right)^2 \to
+\left(V \times \mathbb{Q}/{\left(w \mathbb{Z}\right)}\right)^2\).
 
 A timetable only fixes the services offered by the railroad company.
 But it does not specify where the locomotives and waggons in use come
@@ -217,7 +217,7 @@ We will define a distance function \(\Delta_S (s,t)\) on paths in
 trains \(s\) and \(t\) or \(\infty\) if no such path exists.  We can
 talk about \emph{the} path \(P \subseteq S\) between \(s\) and \(t\),
 because \(G_S\) consists only of disjoint cycles.
-\[\Delta_{S}\colon T \times T \to \mathbb{R}^+_0 \cup \{\infty\}\]
+\[\Delta_{S}\colon T \times T \to \mathbb{Q}^+_0 \cup \{\infty\}\]
 \begin{equation}
 \label{defDelta}
 \Delta_S (s,t) = \begin{cases}
@@ -233,7 +233,7 @@ because \(G_S\) consists only of disjoint cycles.
 Of course we have only moved the problem.  We still have to define the length of a single arc:  \(d(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
 \[
 d ((\cdot, t_{\textrm{dep}}, \cdot, t_{\textrm{arr}}), (\cdot, \ol{t_{\textrm{dep}}},\cdot, \cdot)  :=
-\min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \mathbb{R}^+_0)
+\min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \mathbb{Q}^+_0)
 \]
 
 In most cases this will be just the difference \(\ol{t_{\textrm{dep}}}
@@ -312,10 +312,10 @@ consists of disjoint cycles.  For all \(r \in T\):
 
 To reflect the values of \(\Delta_S\) in the integer program we use the binary variables \(\delta\):
 \begin{align}
-  \delta \colon T \times T \times \mathbb{R} & \to \{0,1\} \\
+  \delta \colon T \times T \times \mathbb{Q} & \to \{0,1\} \\
   \delta\left(r, q, \Delta_S\left(r,q\right)\right) &\cong 1 \\
   \label{onlyOne}
-  \sum_{z \in \mathbb{R}} \delta(r, q, z) &\leq 1
+  \sum_{z \in \mathbb{Q}} \delta(r, q, z) &\leq 1
 \end{align}
 
 For every simple path \(P \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
@@ -329,7 +329,7 @@ the distance between its endpoints in \(S\).
 And for every \(r\)-\(q\)-cut \(C \subseteq T\) (with \(r \in C\)):
 \begin{align}
 \label{zwingRunter}
-  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in R} \delta (r,q, z)
+  \sum_{a \in C \times (T \setminus C)} m(a) \geq \sum_{z \in \mathbb{Q}} \delta (r,q, z)
 \end{align}
 
 % \(G_S=(T,S\subseteq T^2)\)
@@ -361,27 +361,31 @@ Given
 \item classes \(z, \ol{z} \in C\)
 \item and trains \(r_1, r_2 \in z\) and \(\ol{r}_1,\ol{r}_2 \in \ol{z}\)
 \item with \( d (r_1, r_2) = d(\ol{r}_1, \ol{r}_2) \),
-\item then for every \(z \in \mathbb{R}\)
+\item then for every \(z \in \mathbb{Q}\)
 \begin{equation}
 \label{homoEqLin}
   \delta    (r_1, \ol{r_1}, z) = \delta (r_2, \ol{r_2}, z)\textrm{.}
 \end{equation}
 \end{itemize}
 \end{defn}
-
 \section{Finitizing the integer linear program}
 \label{finitizing}
 \todo{Motivation!}
 
+The linear integer program of section \ref{infIP} describes the
+problem of finding a homogeneous vehicle schedule.  It uses an
+infinite number of variables.  That is hardly tractable.  But we can
+reduce the number of variables from infinite to finite.
+
 Equation \ref{matchBedingung} holds for all \(r \in T\) and \(T\) is
-already finite.  We declared \(\Delta_S\) to map into \(R^+_0 \cup
+already finite.  We declared \(\Delta_S\) to map into \(\mathbb{Q}^+_0 \cup
 \{\infty\}\), but we can restrict the image even further:
-\todo{notation: \(\oplus\) is the Minkowski sum.}
 \begin{equation}
 \label{einfacher}
 \Delta_S (s,t) \in \{d (s,t)\} \oplus w \mathbb{N}_0
 \end{equation}
-\todo{Proof why \ref{einfacher} holds!}
+where \(\oplus\) is the Minkowski sum.
+\todo{Proof why \ref{einfacher} (=equation above) holds!}
 
 Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w
 \mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is
@@ -572,7 +576,8 @@ or the objective function.
 
 \subsection{Estimating the runtime of the oracle}
 
-\todo{How fast can we find violated constraints?  I say, fast!  At least polynomial time.  Perhaps even linear?}
+\todo{How fast can we find violated constraints?  I say, fast!  At
+  least in polynomial time.  Perhaps even linear?}
 
 \section{Balancing homogeneity with other objectives?}
 Homogeneity is a very soft objective, \ie its value is hard to measure
