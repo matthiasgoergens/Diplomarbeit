@@ -12,7 +12,7 @@ Eingabe:
 
 
 Interaktion mit Solver:
-    Daten in den Solver fuettern, (SCIP?)
+    Daten in den Solver fuettern, (ZIMPL-Format?  CLUE von SCIP nutzen, oder?)
     Ergebnisse parsen und:
        entweder Ergebnisse zurueckgeben
        oder 	Lazy Constraint hinzufuegen, und wieder loesen.
