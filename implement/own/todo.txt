@@ -1,0 +1,23 @@
+'Externer' Solver:
+
+Nutze Scip ueber die CLUE
+mit einem Haskell-Programm
+
+Lazy constraints kann man fast genau wie im integrierten Fall
+einfuegen.  Warmstart wird wohl nicht gehen.
+
+Aufbau des Programms:
+Eingabe:
+    Parsen der Eingabe
+
+
+Interaktion mit Solver:
+    Daten in den Solver fuettern, (SCIP?)
+    Ergebnisse parsen und:
+       entweder Ergebnisse zurueckgeben
+       oder 	Lazy Constraint hinzufuegen, und wieder loesen.
+
+Ausgabe:
+   Print des Ergebnisses
+    
+    
