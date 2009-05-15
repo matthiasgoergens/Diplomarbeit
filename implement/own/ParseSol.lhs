@@ -28,10 +28,10 @@ m#9#0                                               1   (obj:0)
 > stdSol :: Solution
 > stdSol = Solution [] M.empty
 
-> parseSol fname = do res <- parseFromFile parseSol' fname
->                     case res of Left err -> do print err
->                                                return Nothing
->                                 Right xs -> do return $ Just (Solution (evalState (cycs []) xs) M.empty)
+> parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
+>                           case res of Left err -> do print err
+>                                                      return Nothing
+>                                       Right xs -> do return $ Just (Solution (getCycles xs) (stdKT nfnrs))
 
 
  cycles :: Ord a => M.Map a a -> Maybe [[a]]
@@ -39,6 +39,11 @@ m#9#0                                               1   (obj:0)
      where (v:_) = M.keys m
 
 > -- runstate (cycles c) m
+
+
+
+> getCycles = evalState (cycs [])
+
 
 > -- cycles :: Ord a => M.Map a a -> ST
 > cycs cs = do m <- get

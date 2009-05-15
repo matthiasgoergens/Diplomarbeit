@@ -1,5 +1,10 @@
-> module Solution (Solution(Solution), KT_Abs(KT_Abs,Infinity), Nutzfahrt(Nf), Zug(Zug), Zeit(Zeit), NfNr (NfNr)) where
+> module Solution (Solution(Solution), KT_Abs(KT_Abs,Infinity), Nutzfahrt(Nf), Zug(Zug), Zeit(Zeit), NfNr (NfNr), stdKT) where
 > import qualified Data.Map as M
+
+> import Data.Function
+
+> stdKT nfnrs = M.fromList . map ((flip (,) Infinity)) $ cartProd $ nfnrs
+> cartProd l = [(v,w) | v <- l, w<-l]
 
 data Solution = Solution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) KT_Abs)
 
@@ -12,6 +17,27 @@ data Solution = Solution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) KT_Abs)
 > -- Nutzfahrt Abfahrt Ankunft deriving (Show, Eq)
 > data Nutzfahrt = Nf Zeit Zeit deriving (Show, Eq, Ord)
 > data Zug = Zug [Nutzfahrt] deriving (Show, Eq, Ord)
+
+> instance Num Zeit where
+>     (+) = onZeit2 (+)
+>     negate = onZeit1 negate
+>     fromInteger = Zeit
+>     abs = onZeit1 abs
+>     signum = onZeit1 signum
+
+> onZeit1 op  = Zeit . op . unZeit
+> onZeit2 op (Zeit x) (Zeit y) = Zeit $ op x y
+> unZeit (Zeit x) = x
+
+> instance Num KT_Abs where
+>     (+) = KT_Abs .: (on) (+) unKT_Abs
+>     fromInteger = KT_Abs
+
+> unKT_Abs (KT_Abs x) = x
+
+
+> (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
+> (.:) f = curry . (f.) . uncurry
 
 
 > 
