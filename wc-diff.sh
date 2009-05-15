@@ -1,1 +1,1 @@
-watch "git diff -b -w -U0 master homogen.tex | wc -l"
+watch "git diff -b -w -U0 master homogen.tex implement/own/*.lhs | wc -l"
