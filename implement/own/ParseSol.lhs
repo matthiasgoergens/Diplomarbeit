@@ -11,9 +11,8 @@ m#7#2                                               1   (obj:0)
 m#8#1                                               1   (obj:0)
 m#9#0                                               1   (obj:0)
 
-
-
-> module ParseSol (parseSol) where
+> {-# OPTIONS_GHC -fglasgow-exts #-}
+> module ParseSol where
 
 > import Text.ParserCombinators.Parsec
 > import Text.ParserCombinators.Parsec.Token
@@ -23,10 +22,15 @@ m#9#0                                               1   (obj:0)
 > import Data.Maybe
 > import qualified Data.Map as M
 > import Control.Monad.State
+> import Data.List
+> import Test.QuickCheck
+> import qualified Data.Set as S
+> import Data.Function
 
 > import Solution
 > import Util
 
+Provisorisch, parst die Abstaende bis jetzt gar nicht!
 
 > parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
 >                           case res of Left err -> do print err
@@ -34,10 +38,18 @@ m#9#0                                               1   (obj:0)
 >                                       Right xs -> do return $ Just (Solution (getCycles xs) (stdKT Infinity nfnrs))
 
 
+> prop_getCyclesId (nl::[NonEmptyList NfNr]) = on (==) normalize lu
+>                                              (getCycles . mapping $ lu)
+>     where lu = filter (not.null) . makeUnique . map (\(NonEmpty x) -> x) $ nl
+>           mapping = M.fromList . concat . map (neighbours1 . apCar)
+>           
+
+evalState :: State s a -> s -> a
+
+getCycles :: M.Map NfNr NfNr -> [[NfNr]]
+
 > getCycles = evalState (cycs [])
 
-
-> -- cycles :: Ord a => M.Map a a -> ST
 > cycs cs = do m <- get
 >              if M.null m
 >                 then return cs
@@ -45,11 +57,11 @@ m#9#0                                               1   (obj:0)
 >                         cycs (c:cs)
 
 > cyc v = do m <- get
->            (case M.lookup v m of
->                               Nothing -> return []
->                               Just w -> do modify (M.delete v)
->                                            r <- cyc w
->                                            return (w:r))
+>            case M.lookup v m of
+>                              Nothing -> return []
+>                              Just w -> do modify (M.delete v)
+>                                           r <- cyc w
+>                                           return (w:r)
 
 > -- cycles' M.empty c = c
 > cycle' m c@(v:_) = fromMaybe (m,c) 
@@ -63,7 +75,6 @@ m#9#0                                               1   (obj:0)
 >                ms <- many mLine
 >                eof
 >                return (M.fromList ms)
-> -- parseSol solFile = Just $ stdSol
 
 > intro = "solution status: optimal solution found\n"
 >         ++"objective value:                                    0\n"

@@ -1,4 +1,4 @@
-> {-# OPTIONS_GHC -fglasgow-exts #-}
+> {-# OPTIONS_GHC -fglasgow-exts -fextended-default-rules #-}
 
 > module Main where
 > import Test.QuickCheck
@@ -13,6 +13,8 @@
 > import Distribution.Simple.Utils
 > import Data.List
 > import Data.Maybe
+> import Text.Show
+> import Debug.Trace
 
 > import Util
 > import Config
@@ -76,15 +78,48 @@ Generic Haskell waere hier besser.  (Warum?)
 > writeF filePath string = withFile filePath WriteMode (flip hPutStr string)
 
 
+> combine :: (Ord k, Eq k, Show k, Show a, Show b)
+>            => M.Map k a -> M.Map k b -> Maybe (M.Map k (a,b))
 
-> -- findFault :: Solution -> [Maybe Nutzfahrt]
-> findFault (Solution c _) = map diffs c -- map (flip M.lookup zzuege) c
+> combine ma mb = -- trace ("OOOO\n"++show (zip la lb)++"\nOOO\n")
+>                 liftM M.fromList (zipWith' op la lb)
+>     where op (ka, a) (kb, b) | ka == kb = Just $ (ka, (a, b))
+>                              | otherwise = Nothing
+>           zipWith' f [] [] = Just []
+>           zipWith' f (a:as) [] = Nothing
+>           zipWith' f [] (b:bs) = Nothing
+>           zipWith' f (a:as) (b:bs) = do c <- op a b
+>                                         cs <- zipWith' f as bs
+>                                         return (c : cs)
+>           la = M.toList ma
+>           lb = M.toList mb
+
+ findFault :: M.Map NfNr Nutzfahrt -> Solution -> Just (M.Map (NfNr,NfNr) Comparision)
+
+> instance Show (Maybe Ordering) where
+>     show Nothing = "Nothing"
+>     show (Just x) = ("Just " ++ show x)
+
+> findFault zzuege (Solution cycles mapping) = liftM (M.filter (/=EQ) . M.map (uncurry compare))
+>                                              $ combine echt_mapping mapping
+>     where echt_mapping = d_echt zzuege cycles
+
+> -- correctFault :: Solution -> NfNr -> NfNr -> Comparision -> ?
+> correctFault zzuege sol a b LT = pathConstraint zzuege sol a b
+> correctFault zzuege sol a b GT = cutConstraint zzuege sol a b
+
+> pathConstraint zzuege (Solution cycles _) a b
+>                    = do cycle <- listToMaybe (filter pred cycles)
+>                         path cycle a b
+>     where pred cycle = elem a cycle && elem b cycle
+
+> cutConstraint _ _ _ _ = Nothing
 
 > -- data PreSolution = PreSolution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) [Bool])
 > -- nur interessant, wenn die Bedingung oneBinOnly lazy ist.
 
-> d_echt :: [[NfNr]] -> M.Map (NfNr,NfNr) KT_Abs
-> d_echt cycles = M.unions . (++[stdKT Infinity $ concat cycles]) . map diffs $ cycles
+> d_echt :: M.Map NfNr Nutzfahrt -> [[NfNr]] -> M.Map (NfNr,NfNr) KT_Abs
+> d_echt zzuege cycles = M.unions . (++[stdKT Infinity $ concat cycles]) . map (diffs zzuege) $ cycles
 
 Anzahl Wochenspruenge zwischen zwei Nutzfahrten (Abfahrten).
 Annahme: Keine mehrwoechigen Nutzfahrten!
@@ -96,15 +131,15 @@ Annahme: Keine mehrwoechigen Nutzfahrten!
 
 Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 
-> d2' :: NfNr -> NfNr -> KT_Abs
-> d2' = d2 `on` c
+> d2' :: M.Map NfNr Nutzfahrt -> NfNr -> NfNr -> KT_Abs
+> d2' zzuege = d2 `on` c
 >     where c nfnr = fromMaybe (error ("d2': "++show nfnr ++" not in zzuege."))
 >                    $ flip M.lookup zzuege nfnr
 
-> diffs :: [NfNr] -> M.Map (NfNr,NfNr) KT_Abs
-> diffs = M.fromList . map conv . concat . map (drop 2 . inits) . map apCar . rotations
+> diffs :: M.Map NfNr Nutzfahrt -> [NfNr] -> M.Map (NfNr,NfNr) KT_Abs
+> diffs zzuege = M.fromList . map conv . concat . map (drop 2 . inits) . map apCar . rotations
 >     where conv subC = ((head subC, last subC)
->                       , sum . map (uncurry d2') . neighbours1 $ subC)
+>                       , sum . map (uncurry (d2' zzuege)) . neighbours1 $ subC)
 
 
 > main = do putStr "\n"
@@ -114,7 +149,7 @@ Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 >           case s of Nothing -> return ()
 >                     Just sol -> do print $ (\(Solution c _) -> c) sol
 >                                    putStr "\n"
->                                    print $ foldr M.union ({-stdKT Infinity nfnrs-} M.empty) $ findFault sol
+>                                    print $ findFault zzuege sol
 >           putStr "\n"
 > --          quickCheck (\ (NonEmpty (l::[Int])) -> collect (length l) True)
 > --          quickCheck prop_neighbours1Right

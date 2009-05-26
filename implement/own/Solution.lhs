@@ -3,11 +3,16 @@
 > import Data.Function
 
 > import Util
+> import Test.QuickCheck
 
 
 data Solution = Solution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) KT_Abs)
 
 > data NfNr = NfNr Integer deriving (Show, Eq, Ord)
+
+> instance Arbitrary (NfNr) where
+>     arbitrary = do nr <- arbitrary
+>                    return $ NfNr nr
 
 > data Solution = Solution [[NfNr]] (M.Map (NfNr, NfNr) KT_Abs) deriving (Show, Eq, Ord)
 > data KT_Abs = KT_Abs Integer | Infinity  deriving (Show, Eq, Ord)

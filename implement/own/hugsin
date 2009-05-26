@@ -1,2 +1,2 @@
-:l MyTest.lhs
-Test.QuickCheck.quickCheck prop_Unions
+:l ParseSol.lhs
+Test.QuickCheck.quickCheck prop_getCyclesId

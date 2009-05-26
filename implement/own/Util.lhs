@@ -4,6 +4,8 @@
 > import Data.Function
 > import Data.List
 > import qualified Data.Map as M
+> import qualified Data.Set as S
+> import Data.Maybe
 
 > (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
 > (.:) f = curry . (f.) . uncurry
@@ -43,3 +45,26 @@
 > stdKT deFault = M.fromList . map (flip (,) deFault) . cartProd
 
 > cartProd l = [(v,w) | v <- l, w<-l]
+
+> normalize :: Ord a => [[a]] -> [[a]]
+> normalize = sort . map (minimum . rotations)
+
+Das Set wird durchgereicht.  Also lieber StateMonad?
+
+> makeUnique :: (Eq a, Ord a) => [[a]] -> [[a]]
+> makeUnique ll = op ll S.empty
+>     where op [] s = []
+>           op (l:ls) s = let (l', s') = op1 l s
+>                         in l' : op ls s'
+>           op1 [] s = ([],s)
+>           op1 (x:xs) s | S.member x s = op1 xs s
+>                        | otherwise = let (xs', s') = op1 xs (S.insert x s)
+>                                      in (x:xs', s')
+
+
+> path :: Eq a => [a] -> a -> a -> Maybe [a]
+> path l a b | not $ elem b l = Nothing
+>            | otherwise = do (a:la) <- listToMaybe . filter preda . rotations $ l
+>                             return ([a] ++ takeWhile (/= b) la ++ [b])
+>     where preda (x:xs) = x == a
+>           preda _ = False
