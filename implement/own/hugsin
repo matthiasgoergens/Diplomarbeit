@@ -1,0 +1,2 @@
+:l MyTest.lhs
+Test.QuickCheck.quickCheck prop_Unions

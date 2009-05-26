@@ -1,10 +1,9 @@
 > module Solution (Solution(Solution), KT_Abs(KT_Abs,Infinity), Nutzfahrt(Nf), Zug(Zug), Zeit(Zeit), NfNr (NfNr), stdKT) where
 > import qualified Data.Map as M
-
 > import Data.Function
 
-> stdKT nfnrs = M.fromList . map ((flip (,) Infinity)) $ cartProd $ nfnrs
-> cartProd l = [(v,w) | v <- l, w<-l]
+> import Util
+
 
 data Solution = Solution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) KT_Abs)
 
@@ -36,8 +35,7 @@ data Solution = Solution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) KT_Abs)
 > unKT_Abs (KT_Abs x) = x
 
 
-> (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
-> (.:) f = curry . (f.) . uncurry
+
 
 
 > 

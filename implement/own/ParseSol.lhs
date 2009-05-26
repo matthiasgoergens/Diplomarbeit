@@ -19,14 +19,14 @@ m#9#0                                               1   (obj:0)
 > import Text.ParserCombinators.Parsec.Token
 > import Data.List (nubBy)
 > import System.Environment (getArgs)
-> import Solution
 > import Data.Char
 > import Data.Maybe
 > import qualified Data.Map as M
 > import Control.Monad.State
 
-> stdSol :: Solution
-> stdSol = Solution [] M.empty
+> import Solution
+> import Util
+
 
 > parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
 >                           case res of Left err -> do print err

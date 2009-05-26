@@ -1,0 +1,94 @@
+(.&&.) ::
+  (Testable prop1, Testable prop2) => prop1 -> prop2 -> Property
+(.&.) ::
+  (Testable prop1, Testable prop2) => prop1 -> prop2 -> Property
+(==>) :: (Testable prop) => Bool -> prop -> Property
+(><) :: (Gen a -> Gen a) -> (Gen a -> Gen a) -> Gen a -> Gen a
+class Arbitrary a where
+  arbitrary :: Gen a
+  shrink :: a -> [a]
+newtype Blind a = Blind a
+class CoArbitrary a where coarbitrary :: a -> Gen c -> Gen c
+newtype Fixed a = Fixed a
+newtype Gen a
+  = Test.QuickCheck.Gen.MkGen {Test.QuickCheck.Gen.unGen :: System.Random.StdGen
+                                                            -> Int
+                                                            -> a}
+newtype NonEmptyList a = NonEmpty [a]
+newtype NonNegative a = NonNegative a
+newtype NonZero a = NonZero a
+newtype OrderedList a = Ordered [a]
+type Positive a = NonZero (NonNegative a)
+newtype Prop
+  = Test.QuickCheck.Property.MkProp {Test.QuickCheck.Property.unProp :: Test.QuickCheck.Property.Rose
+                                                                          (IO Result)}
+type Property = Gen Prop
+data Result
+  = MkResult {ok :: Maybe Bool,
+              expect :: Bool,
+              reason :: String,
+              stamp :: [(String, Int)],
+              callback :: IO (),
+              callback' :: IO ()}
+class ShrinkState s a where
+  shrinkInit :: a -> s
+  shrinkState :: a -> s -> [(a, s)]
+data Shrinking s a = Shrinking s a
+data Smart a = Smart Int a
+class Testable prop where property :: prop -> Property
+arbitraryBoundedIntegral :: (Bounded a, Integral a) => Gen a
+arbitraryBoundedRandom ::
+  (Bounded a, System.Random.Random a) => Gen a
+arbitrarySizedFractional :: (Fractional a) => Gen a
+arbitrarySizedIntegral :: (Num a) => Gen a
+choose :: (System.Random.Random a) => (a, a) -> Gen a
+classify :: (Testable prop) => Bool -> String -> prop -> Property
+coarbitraryIntegral :: (Integral a) => a -> Gen b -> Gen b
+coarbitraryReal :: (Real a) => a -> Gen b -> Gen b
+collect :: (Show a, Testable prop) => a -> prop -> Property
+cover ::
+  (Testable prop) => Bool -> Int -> String -> prop -> Property
+elements :: [a] -> Gen a
+expectFailure :: (Testable prop) => prop -> Property
+forAll ::
+  (Show a, Testable prop) => Gen a -> (a -> prop) -> Property
+forAllBlind :: (Testable prop) => Gen a -> (a -> prop) -> Property
+forAllShrink ::
+  (Show a, Testable prop) =>
+  Gen a -> (a -> [a]) -> (a -> prop) -> Property
+forSeveral ::
+  (Show a, Testable prop) => Gen a -> (a -> prop) -> Property
+forSeveralShrink ::
+  (Show a, Testable prop) =>
+  Gen a -> (a -> [a]) -> (a -> prop) -> Property
+frequency :: [(Int, Gen a)] -> Gen a
+growingElements :: [a] -> Gen a
+label :: (Testable prop) => String -> prop -> Property
+listOf :: Gen a -> Gen [a]
+listOf1 :: Gen a -> Gen [a]
+mapSize :: (Testable prop) => (Int -> Int) -> prop -> Property
+oneof :: [Gen a] -> Gen a
+orderedList :: (Ord a, Arbitrary a) => Gen [a]
+promote :: (Monad m) => m (Gen a) -> Gen (m a)
+quickCheck :: (Testable prop) => prop -> IO ()
+quickCheck' :: (Testable prop) => prop -> IO Bool
+quickCheckIO :: (Testable prop) => IO prop -> IO ()
+quickCheckWith ::
+  (Testable prop) => Int -> Int -> Int -> prop -> IO Bool
+resize :: Int -> Gen a -> Gen a
+sample :: (Show a) => Gen a -> IO ()
+sample' :: Gen a -> IO [a]
+shrinkIntegral :: (Integral a) => a -> [a]
+shrinkNothing :: a -> [a]
+shrinkRealFrac :: (RealFrac a) => a -> [a]
+shrinking ::
+  (Testable prop) => (a -> [a]) -> a -> (a -> prop) -> Property
+sized :: (Int -> Gen a) -> Gen a
+suchThat :: Gen a -> (a -> Bool) -> Gen a
+suchThatMaybe :: Gen a -> (a -> Bool) -> Gen (Maybe a)
+variant :: (Integral n) => n -> Gen a -> Gen a
+vector :: (Arbitrary a) => Int -> Gen [a]
+vectorOf :: Int -> Gen a -> Gen [a]
+whenFail :: (Testable prop) => IO () -> prop -> Property
+whenFail' :: (Testable prop) => IO () -> prop -> Property
+within :: (Testable prop) => Int -> prop -> Property
