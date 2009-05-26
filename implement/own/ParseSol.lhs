@@ -31,15 +31,7 @@ m#9#0                                               1   (obj:0)
 > parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
 >                           case res of Left err -> do print err
 >                                                      return Nothing
->                                       Right xs -> do return $ Just (Solution (getCycles xs) (stdKT nfnrs))
-
-
- cycles :: Ord a => M.Map a a -> Maybe [[a]]
- cycles m = cycle' [[v]] m
-     where (v:_) = M.keys m
-
-> -- runstate (cycles c) m
-
+>                                       Right xs -> do return $ Just (Solution (getCycles xs) (stdKT Infinity nfnrs))
 
 
 > getCycles = evalState (cycs [])
