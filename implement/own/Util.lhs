@@ -62,9 +62,15 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
 >                                      in (x:xs', s')
 
 
-> path :: Eq a => [a] -> a -> a -> Maybe [a]
-> path l a b | not $ elem b l = Nothing
->            | otherwise = do (a:la) <- listToMaybe . filter preda . rotations $ l
->                             return ([a] ++ takeWhile (/= b) la ++ [b])
->     where preda (x:xs) = x == a
->           preda _ = False
+ path :: Ord a => M.Map a a -> a -> a -> Maybe [a]
+ path mNf a b = if (a == b)
+                   then return 
+                   else do n <- M.lookup a mNf
+                           rest <- path mNf n b
+                           return (a:rest)
+
+ path l a b | not $ elem b l = Nothing
+            | otherwise = do (a:la) <- listToMaybe . filter preda . rotations $ l
+                             return ([a] ++ takeWhile (/= b) la ++ [b])
+     where preda (x:xs) = x == a
+           preda _ = False

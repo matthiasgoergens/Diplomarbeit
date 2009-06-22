@@ -100,17 +100,16 @@ Generic Haskell waere hier besser.  (Warum?)
 >     show Nothing = "Nothing"
 >     show (Just x) = ("Just " ++ show x)
 
-> findFault zzuege (Solution cycles mapping) = liftM (M.filter (/=EQ) . M.map (uncurry compare))
->                                              $ combine echt_mapping mapping
->     where echt_mapping = d_echt zzuege cycles
+> findFault zzuege (Solution mNf mapping) = liftM (M.filter (/=EQ) . M.map (uncurry compare))
+>                                           $ combine echt_mapping mapping
+>     where echt_mapping = d_echt zzuege (getCycles mNf)
 
 > -- correctFault :: Solution -> NfNr -> NfNr -> Comparision -> ?
 > correctFault zzuege sol a b LT = pathConstraint zzuege sol a b
 > correctFault zzuege sol a b GT = cutConstraint zzuege sol a b
 
-> pathConstraint zzuege (Solution cycles _) a b
->                    = do cycle <- listToMaybe (filter pred cycles)
->                         path cycle a b
+> pathConstraint zzuege (Solution mNf _) a b
+>                    = do path mNf a b
 >     where pred cycle = elem a cycle && elem b cycle
 
 > cutConstraint _ _ _ _ = Nothing
@@ -121,9 +120,15 @@ Generic Haskell waere hier besser.  (Warum?)
 > d_echt :: M.Map NfNr Nutzfahrt -> [[NfNr]] -> M.Map (NfNr,NfNr) KT_Abs
 > d_echt zzuege cycles = M.unions . (++[stdKT Infinity $ concat cycles]) . map (diffs zzuege) $ cycles
 
-Anzahl Wochenspruenge zwischen zwei Nutzfahrten (Abfahrten).
-Annahme: Keine mehrwoechigen Nutzfahrten!
 
+> diffs :: M.Map NfNr Nutzfahrt -> [NfNr] -> M.Map (NfNr,NfNr) KT_Abs
+> diffs zzuege = M.fromList . map conv . concat . map (drop 2 . inits) . map apCar . rotations
+>     where conv subC = ((head subC, last subC)
+>                       , sum . map (uncurry (d2' zzuege)) . neighbours1 $ subC)
+
+> -- Anzahl Wochenspruenge zwischen zwei Nutzfahrten (Abfahrten).
+> -- Annahme: Keine mehrwoechigen Nutzfahrten!
+> -- (Wird spaeter mal von ausserhalb geliefert werden.)
 > d2 :: Nutzfahrt -> Nutzfahrt -> KT_Abs
 > d2 (Nf ab1 an1) (Nf ab2 _) = diff ab1 an1 + diff an1 ab2
 >     where diff (Zeit x) (Zeit y) | x <= y = KT_Abs 0
@@ -136,10 +141,7 @@ Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 >     where c nfnr = fromMaybe (error ("d2': "++show nfnr ++" not in zzuege."))
 >                    $ flip M.lookup zzuege nfnr
 
-> diffs :: M.Map NfNr Nutzfahrt -> [NfNr] -> M.Map (NfNr,NfNr) KT_Abs
-> diffs zzuege = M.fromList . map conv . concat . map (drop 2 . inits) . map apCar . rotations
->     where conv subC = ((head subC, last subC)
->                       , sum . map (uncurry (d2' zzuege)) . neighbours1 $ subC)
+
 
 
 > main = do putStr "\n"

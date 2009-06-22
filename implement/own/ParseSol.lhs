@@ -35,7 +35,7 @@ Provisorisch, parst die Abstaende bis jetzt gar nicht!
 > parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
 >                           case res of Left err -> do print err
 >                                                      return Nothing
->                                       Right xs -> do return $ Just (Solution (getCycles xs) (stdKT Infinity nfnrs))
+>                                       Right xs -> do return $ Just (Solution xs (stdKT Infinity nfnrs))
 
 
 > prop_getCyclesId (nl::[NonEmptyList NfNr]) = on (==) normalize lu
@@ -68,9 +68,6 @@ getCycles :: M.Map NfNr NfNr -> [[NfNr]]
 >                    
 >                                
 
-> number =  many digit
->           >>= return . foldl (\a b -> 10*a+b) 0 . map (toInteger.digitToInt)
-
 > parseSol' = do string intro
 >                ms <- many mLine
 >                eof
@@ -88,6 +85,9 @@ getCycles :: M.Map NfNr NfNr -> [[NfNr]]
 >            spaces
 >            string "(obj:0)\n"
 >            return (NfNr v, NfNr w)
+
+> number =  many digit
+>           >>= return . foldl (\a b -> 10*a+b) 0 . map (toInteger.digitToInt)
 
 csvfile = do lines <- (csvline `sepBy` newline)
              many newline
