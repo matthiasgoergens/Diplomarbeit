@@ -18,6 +18,7 @@
 
 > import Util
 > import Config
+> import GHC.IOBase
 
 vtF: Verkehrstag-Start:
 param vtF[V] := <1> 1, <2> 2, <3> 0,
@@ -71,7 +72,7 @@ Generic Haskell waere hier besser.  (Warum?)
 >            \      sum <n> in KT: kt_abs[v,w,n] <= 1;\n"
 >    where numV = sum (map length zuege)
 
-> command inFile outFile = "scip -c 'read \"" ++ inFile ++"\"' -c 'optimize' "
+> command inFile outFile = "./scip -c 'read \"" ++ inFile ++"\"' -c 'optimize' "
 >                          ++"-c 'write solution \""++outFile++"\"' -c 'quit'"
 
 > writeF :: FilePath -> String -> IO ()
@@ -94,23 +95,34 @@ Generic Haskell waere hier besser.  (Warum?)
 >           la = M.toList ma
 >           lb = M.toList mb
 
- findFault :: M.Map NfNr Nutzfahrt -> Solution -> Just (M.Map (NfNr,NfNr) Comparision)
+
 
 > instance Show (Maybe Ordering) where
 >     show Nothing = "Nothing"
 >     show (Just x) = ("Just " ++ show x)
 
+findFault searches the IP solution for differences between
+matching-implied distances and distances indicated by the `ks_abs' variables in
+the solution.
+
+> findFault :: M.Map NfNr Nutzfahrt -> Solution -> Maybe (M.Map (NfNr,NfNr) Ordering)
 > findFault zzuege (Solution mNf mapping) = liftM (M.filter (/=EQ) . M.map (uncurry compare))
->                                           $ combine echt_mapping mapping
->     where echt_mapping = d_echt zzuege (getCycles mNf)
+>                                           $ combine implied_mapping mapping
+>     where implied_mapping = d_echt zzuege (getCycles mNf)
 
-> -- correctFault :: Solution -> NfNr -> NfNr -> Comparision -> ?
-> correctFault zzuege sol a b LT = pathConstraint zzuege sol a b
-> correctFault zzuege sol a b GT = cutConstraint zzuege sol a b
 
+> --                               s    t    path          d(s,t)
+> data Constraint = PathConstraint NfNr NfNr [(NfNr,NfNr)] KT_Abs deriving Show
+
+> correctFault :: M.Map NfNr Nutzfahrt -> Solution -> (NfNr, NfNr) -> Ordering -> Maybe Constraint
+> correctFault zzuege sol (a,b) LT = pathConstraint zzuege sol a b
+> correctFault zzuege sol (a,b) GT = cutConstraint zzuege sol a b
+
+> pathConstraint :: M.Map NfNr Nutzfahrt -> Solution -> NfNr -> NfNr -> Maybe Constraint
 > pathConstraint zzuege (Solution mNf _) a b
->                    = do path mNf a b
->     where pred cycle = elem a cycle && elem b cycle
+>                    = liftM2 (PathConstraint a b) n (s n)
+>     where n = liftM neighbours1 $ path mNf a b
+>           s = liftM (sum . map (uncurry (d2' zzuege)))
 
 > cutConstraint _ _ _ _ = Nothing
 
@@ -139,20 +151,22 @@ Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 > d2' :: M.Map NfNr Nutzfahrt -> NfNr -> NfNr -> KT_Abs
 > d2' zzuege = d2 `on` c
 >     where c nfnr = fromMaybe (error ("d2': "++show nfnr ++" not in zzuege."))
->                    $ flip M.lookup zzuege nfnr
-
-
+>                    $ M.lookup nfnr zzuege
 
 
 > main = do putStr "\n"
 >           writeFileAtomic zplFile genZimpl
->           system (command zplFile solFile)
->           s <- parseSol nfnrs solFile
->           case s of Nothing -> return ()
->                     Just sol -> do print $ (\(Solution c _) -> c) sol
->                                    putStr "\n"
->                                    print $ findFault zzuege sol
->           putStr "\n"
+>           exitCode <- system (command zplFile solFile)
+>           case exitCode of ExitSuccess -> do s <- parseSol nfnrs solFile
+>                                              case s of Nothing -> return ()
+>                                                        Just sol -> do print $ (\(Solution c _) -> c) sol
+>                                                                       putStr "\nFaults:\t"
+>                                                                       print $ join $ maybeToList $ liftM (catMaybes . M.elems) $ liftM (M.mapWithKey
+>                                                                                      (correctFault zzuege sol))
+>                                                                                 (findFault zzuege sol)
+>                                                                                 
+>                                                                       putStr "\n"
+>                            otherwise -> return ()
 > --          quickCheck (\ (NonEmpty (l::[Int])) -> collect (length l) True)
 > --          quickCheck prop_neighbours1Right
 > --          print (head zuege)

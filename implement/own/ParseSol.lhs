@@ -46,8 +46,7 @@ Provisorisch, parst die Abstaende bis jetzt gar nicht!
 
 evalState :: State s a -> s -> a
 
-getCycles :: M.Map NfNr NfNr -> [[NfNr]]
-
+> getCycles :: M.Map NfNr NfNr -> [[NfNr]]
 > getCycles = evalState (cycs [])
 
 > cycs cs = do m <- get

@@ -1,2 +1,0 @@
-:l ParseSol.lhs
-Test.QuickCheck.quickCheck prop_getCyclesId

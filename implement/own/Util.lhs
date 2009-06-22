@@ -6,6 +6,7 @@
 > import qualified Data.Map as M
 > import qualified Data.Set as S
 > import Data.Maybe
+> import Debug.Trace
 
 > (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
 > (.:) f = curry . (f.) . uncurry
@@ -61,14 +62,33 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
 >                        | otherwise = let (xs', s') = op1 xs (S.insert x s)
 >                                      in (x:xs', s')
 
+> path :: (Ord a, Eq a) => M.Map a a -> a -> a -> Maybe [a]
+> path mNf a b = path' a b
+>     where path' a b = if (a == b)
+>                       then Just [a]
+>                       else M.lookup a mNf
+>                                >>= flip path' b
+>                                >>= (return . (a:))
 
- path :: Ord a => M.Map a a -> a -> a -> Maybe [a]
- path mNf a b = if (a == b)
-                   then return 
-                   else do n <- M.lookup a mNf
-                           rest <- path mNf n b
-                           return (a:rest)
+> prop_path1 = trace (show p)
+>              p == Just [2,3,1]
+>     where p = path (M.fromList [(1,2),(2,3), (3,1)]) 2 1
 
+> prop_path (nl1 :: [NonEmptyList Int]) (l::[Int]) (m::[Int]) (r::[Int]) (nl2 :: [NonEmptyList Int])
+>               = Just (luBool lu) == path (mapping lu) (Right False) (Right True)
+>
+>     where luBool :: [[Either Int Bool]] -> [Either Int Bool]
+>           luBool = ((++ [Right True]) . takeWhile (/= Right True) . dropWhile (/= Right False) . concat . replicate 2)
+>                    . head
+>                    . filter (elem (Right True)) . filter (elem (Right False))
+>           lu :: [[Either Int Bool]]
+>           lu = filter (not.null) . makeUnique $ nl'
+>           nl' = map (map Left . strip) nl1
+>                 ++ [map Left l ++ [Right False] ++ map Left m ++ [Right True] ++ map Left r]
+>                 ++ map (map Left . strip) nl2
+>           mapping = M.fromList . concat . map (neighbours1 . apCar)
+>           strip (NonEmpty x) = x
+           
  path l a b | not $ elem b l = Nothing
             | otherwise = do (a:la) <- listToMaybe . filter preda . rotations $ l
                              return ([a] ++ takeWhile (/= b) la ++ [b])
