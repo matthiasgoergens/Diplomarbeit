@@ -21,7 +21,7 @@ m#9#0                                               1   (obj:0)
 > import Data.Char
 > import Data.Maybe
 > import qualified Data.Map as M
-> import Control.Monad.State
+> import Control.Monad.State hiding (lift)
 > import Data.List
 > import Test.QuickCheck
 > import qualified Data.Set as S
@@ -32,10 +32,10 @@ m#9#0                                               1   (obj:0)
 
 Provisorisch, parst die Abstaende bis jetzt gar nicht!
 
-> parseSol nfnrs fname = do res <- parseFromFile parseSol' fname
->                           case res of Left err -> do print err
->                                                      return Nothing
->                                       Right xs -> do return $ Just (Solution xs (stdKT Infinity nfnrs))
+> parseSol :: [NfNr] -> String -> IOMayfail Solution
+> parseSol nfnrs solString = case parse parseSol' "Scip-Solution" solString
+>                            of Left err -> fail $ show err
+>                               Right xs -> return $ Solution xs (stdKT Infinity nfnrs)
 
 
 > prop_getCyclesId (nl::[NonEmptyList NfNr]) = on (==) normalize lu

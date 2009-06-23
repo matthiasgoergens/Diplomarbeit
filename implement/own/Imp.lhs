@@ -55,7 +55,8 @@ Generic Haskell waere hier besser.  (Warum?)
 > zuege = map (map . uncurry $ (Nf `on` (Zeit . cv))) zuegeProto
 >     where cv (d, h, m) = ((d*24 + h)*60+m)*60
 
-> genZimpl = "param numV := " ++ show numV ++ ";\n\
+> genZimpl constraints
+>          = "param numV := " ++ show numV ++ ";\n\
 >            \set V := {0 to numV-1}; #Verbindungen, (Doppelte) Vertices im Graphen\n\
 >            \set A := V cross V;\n\
 >            \var m[A] binary;\n\
@@ -70,7 +71,11 @@ Generic Haskell waere hier besser.  (Warum?)
 >            \var kt_abs [A cross KT] binary;\n\
 >            \subto oneBinOnly: forall <v,w> in A do\n\
 >            \      sum <n> in KT: kt_abs[v,w,n] <= 1;\n"
+>            ++ join (map zimplify constraints)
 >    where numV = sum (map length zuege)
+>          
+
+
 
 > command inFile outFile = "./scip -c 'read \"" ++ inFile ++"\"' -c 'optimize' "
 >                          ++"-c 'write solution \""++outFile++"\"' -c 'quit'"
@@ -114,6 +119,9 @@ the solution.
 > --                               s    t    path          d(s,t)
 > data Constraint = PathConstraint NfNr NfNr [(NfNr,NfNr)] KT_Abs deriving Show
 
+> correctFaults :: M.Map NfNr Nutzfahrt -> Solution -> M.Map (NfNr,NfNr) Ordering -> [Constraint]
+> correctFaults zzuege sol faults = 
+
 > correctFault :: M.Map NfNr Nutzfahrt -> Solution -> (NfNr, NfNr) -> Ordering -> Maybe Constraint
 > correctFault zzuege sol (a,b) LT = pathConstraint zzuege sol a b
 > correctFault zzuege sol (a,b) GT = cutConstraint zzuege sol a b
@@ -125,6 +133,23 @@ the solution.
 >           s = liftM (sum . map (uncurry (d2' zzuege)))
 
 > cutConstraint _ _ _ _ = Nothing
+
+
+> zimplify :: Constraint -> String
+> zimplify (PathConstraint (NfNr s) (NfNr t) path d) = "subto " ++ name ++ ":\n"
+>                                        ++ "\t" ++ lhs ++ "\n"
+>                                        ++ "\t<=" ++ rhs ++ ";\n"
+>     where name = join . map ((++"_").show . untag) $ (fst (head path) : map snd path)
+>           untag (NfNr x) = x
+>           lhs = (++"(-1) "). join . map ((++"+") . uncurry m) $ path
+>           m (NfNr a) (NfNr b) = "m["++show a ++", "++show b++"]"
+>           rhs = "kt_abs["++show s++","++show t++","++show d++"]"
+>           
+>           
+>                    
+
+            \subto oneBinOnly: forall <v,w> in A do\n\
+            \      sum <n> in KT: kt_abs[v,w,n] <= 1;\n"
 
 > -- data PreSolution = PreSolution [[Nutzfahrt]] (M.Map (Nutzfahrt, Nutzfahrt) [Bool])
 > -- nur interessant, wenn die Bedingung oneBinOnly lazy ist.
@@ -154,19 +179,36 @@ Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 >                    $ M.lookup nfnr zzuege
 
 
-> main = do putStr "\n"
->           writeFileAtomic zplFile genZimpl
->           exitCode <- system (command zplFile solFile)
->           case exitCode of ExitSuccess -> do s <- parseSol nfnrs solFile
->                                              case s of Nothing -> return ()
->                                                        Just sol -> do print $ (\(Solution c _) -> c) sol
->                                                                       putStr "\nFaults:\t"
->                                                                       print $ join $ maybeToList $ liftM (catMaybes . M.elems) $ liftM (M.mapWithKey
->                                                                                      (correctFault zzuege sol))
->                                                                                 (findFault zzuege sol)
->                                                                                 
->                                                                       putStr "\n"
->                            otherwise -> return ()
+> scip :: String -> IOMayfail String
+> scip zimplCode = do lift $ writeFileAtomic zplFile zimplCode
+>                     exitCode <- lift $ system (command zplFile solFile)
+>                     case exitCode of ExitSuccess -> lift (readFile solFile)
+>                                      ExitFailure n -> fail ("Calling Scip failed with code "++ show n ++".\n")
+
+parseSol nfnrs solFile
+
+> solve :: Constraints -> IOMayfail Solution
+> solve constraints = do solString <- scip (genZimpl constraints)
+>                        parseSol nfnrs solString
+
+> loop :: [Constraint] -> IOMayfail ()
+> loop constraints
+>          = do sol <- solve constraints
+>            (loop . (constraints ++) =<< correctFault zzuege sol =<< findFault zzuege)
+
+               putStr "\nFaults:\t"
+               print . join . maybeToList
+                     . liftM (catMaybes . M.elems)
+                     $ liftM (M.mapWithKey
+                              (correctFault zzuege sol))
+                           (findFault zzuege sol)
+          
+               lift putStr "\n"
+
+> main = do return ()
+>           run (loop [])
+
+
 > --          quickCheck (\ (NonEmpty (l::[Int])) -> collect (length l) True)
 > --          quickCheck prop_neighbours1Right
 > --          print (head zuege)

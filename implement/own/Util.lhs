@@ -94,3 +94,21 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
                              return ([a] ++ takeWhile (/= b) la ++ [b])
      where preda (x:xs) = x == a
            preda _ = False
+
+
+> newtype IOMayfail a = IOMayfail (IO (Maybe a))
+
+> instance Monad IOMayfail where
+>     return = IOMayfail . return . return
+>     (>>=) a f = IOMayfail (bind (run a) (run . f))
+>     fail s = trace s (IOMayfail $ return Nothing)
+
+> run :: IOMayfail a -> IO (Maybe a)
+> run (IOMayfail a) = a
+
+> bind :: IO (Maybe a) -> (a -> IO (Maybe b)) -> IO (Maybe b)
+> bind a f = do r <- a
+>               case r of Nothing -> return Nothing
+>                         Just r' -> f r'
+> lift :: IO a -> IOMayfail a
+> lift f = IOMayfail (f >>= return . return)
