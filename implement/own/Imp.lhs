@@ -137,14 +137,15 @@ the solution.
 
 > zimplify :: Constraint -> String
 > zimplify (PathConstraint (NfNr s) (NfNr t) path d) = "subto " ++ name ++ ":\n"
->                                        ++ "\t" ++ lhs ++ "\n"
->                                        ++ "\t<=" ++ rhs ++ ";\n"
->     where name = ("path"++) . join . map ((++"_").show . untag) $ (fst (trace (show $ path) $ head path) : map snd path)
+>                                                      ++ "\t" ++ lhs ++ "\n"
+>                                                      ++ "\t<=" ++ rhs ++ ";\n"
+>     where name = (++ds) . ("path"++) . join . map ((++"_").show . untag) . join . map (\(a,b)->[a,b]) $ path -- (fst (trace (show $ path) $ head path) : map snd path)
 >           untag (NfNr x) = x
 >           untagKT_abs (KT_Abs x) = x
->           lhs = (++"(-1) "). join . map ((++"+") . uncurry m) $ path
+>           lhs = (++"(-1) ") . join . map ((++"+") . uncurry m) $ path
 >           m (NfNr a) (NfNr b) = "m["++show a ++", "++show b++"]"
->           rhs = "kt_abs["++show s++","++show t++","++show (untagKT_abs d)++"]"
+>           rhs = "kt_abs["++show s++","++show t++","++ds++"]"
+>           ds = show . untagKT_abs $ d
 
             \subto oneBinOnly: forall <v,w> in A do\n\
             \      sum <n> in KT: kt_abs[v,w,n] <= 1;\n"
