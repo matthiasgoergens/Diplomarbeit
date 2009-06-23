@@ -120,7 +120,7 @@ the solution.
 > data Constraint = PathConstraint NfNr NfNr [(NfNr,NfNr)] KT_Abs deriving Show
 
 > correctFaults :: M.Map NfNr Nutzfahrt -> Solution -> M.Map (NfNr,NfNr) Ordering -> [Constraint]
-> correctFaults zzuege sol faults = 
+> correctFaults zzuege sol = catMaybes . M.elems . M.mapWithKey (correctFault zzuege sol)
 
 > correctFault :: M.Map NfNr Nutzfahrt -> Solution -> (NfNr, NfNr) -> Ordering -> Maybe Constraint
 > correctFault zzuege sol (a,b) LT = pathConstraint zzuege sol a b
@@ -139,14 +139,12 @@ the solution.
 > zimplify (PathConstraint (NfNr s) (NfNr t) path d) = "subto " ++ name ++ ":\n"
 >                                        ++ "\t" ++ lhs ++ "\n"
 >                                        ++ "\t<=" ++ rhs ++ ";\n"
->     where name = join . map ((++"_").show . untag) $ (fst (head path) : map snd path)
+>     where name = ("path"++) . join . map ((++"_").show . untag) $ (fst (trace (show $ path) $ head path) : map snd path)
 >           untag (NfNr x) = x
+>           untagKT_abs (KT_Abs x) = x
 >           lhs = (++"(-1) "). join . map ((++"+") . uncurry m) $ path
 >           m (NfNr a) (NfNr b) = "m["++show a ++", "++show b++"]"
->           rhs = "kt_abs["++show s++","++show t++","++show d++"]"
->           
->           
->                    
+>           rhs = "kt_abs["++show s++","++show t++","++show (untagKT_abs d)++"]"
 
             \subto oneBinOnly: forall <v,w> in A do\n\
             \      sum <n> in KT: kt_abs[v,w,n] <= 1;\n"
@@ -187,14 +185,17 @@ Muessen wir auch den Abstand einer Nutzfahrt zu sich selbst messen?  Ja!
 
 parseSol nfnrs solFile
 
-> solve :: Constraints -> IOMayfail Solution
+> solve :: [Constraint] -> IOMayfail Solution
 > solve constraints = do solString <- scip (genZimpl constraints)
 >                        parseSol nfnrs solString
 
 > loop :: [Constraint] -> IOMayfail ()
 > loop constraints
 >          = do sol <- solve constraints
->            (loop . (constraints ++) =<< correctFault zzuege sol =<< findFault zzuege)
+>               constraints' <- IOMayfail (return $ do faults <- findFault zzuege sol
+>                                                      return (constraints ++ correctFaults zzuege sol faults))
+>               loop constraints'
+>          -- (loop . () -- =<< correctFault zzuege sol =<< findFault zzuege) sol
 
                putStr "\nFaults:\t"
                print . join . maybeToList

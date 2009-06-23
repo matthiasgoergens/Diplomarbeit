@@ -7,6 +7,7 @@
 > import qualified Data.Set as S
 > import Data.Maybe
 > import Debug.Trace
+> import Control.Monad
 
 > (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
 > (.:) f = curry . (f.) . uncurry
@@ -19,8 +20,8 @@
 > prop_neighbours1Right (NonEmpty (l::[Int])) = tail l == map snd (neighbours1 l)
 
 > neighbours1 :: [a] -> [(a,a)]
-> neighbours1 [] = []
-> neighbours1 [_] = []
+> neighbours1 [] = [] -- error "neighbours1 does not work on empty lists. (Needs two elements at least.)"
+> neighbours1 [_] = [] -- error "neighbours1 does not work on singleton lists. (Needs two elements at least.)"
 > neighbours1 (a:r@(b:_)) = (a,b) : neighbours1 r
 
 > rotations :: [a] -> [[a]]
@@ -63,16 +64,24 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
 >                                      in (x:xs', s')
 
 > path :: (Ord a, Eq a) => M.Map a a -> a -> a -> Maybe [a]
-> path mNf a b = path' a b
->     where path' a b = if (a == b)
->                       then Just [a]
->                       else M.lookup a mNf
->                                >>= flip path' b
->                                >>= (return . (a:))
+> path mNf a b = path' a
+>     where path' a = do new <- M.lookup a mNf
+>                        (if (b == new)
+>                         then return [a,new]
+>                         else return . (a:) =<< path' new)
+
+                       >>= flip path' b
+                       >>= (return . (a:))
+
+                       if (a == b)
+                       then Just [a]
+                       else M.lookup a mNf
+                                >>= flip path' b
+                                >>= (return . (a:))
 
 > prop_path1 = trace (show p)
->              p == Just [2,3,1]
->     where p = path (M.fromList [(1,2),(2,3), (3,1)]) 2 1
+>              p == Just [2,3,1,2]
+>     where p = path (M.fromList [(1,2),(2,3), (3,1)]) 2 2
 
 > prop_path (nl1 :: [NonEmptyList Int]) (l::[Int]) (m::[Int]) (r::[Int]) (nl2 :: [NonEmptyList Int])
 >               = Just (luBool lu) == path (mapping lu) (Right False) (Right True)
