@@ -1,2 +1,12 @@
-solution status: unknown
-no solution available
+solution status: optimal solution found
+objective value:                                    0
+m#0#9                                               1 	(obj:0)
+m#1#8                                               1 	(obj:0)
+m#2#7                                               1 	(obj:0)
+m#3#6                                               1 	(obj:0)
+m#4#5                                               1 	(obj:0)
+m#5#4                                               1 	(obj:0)
+m#6#3                                               1 	(obj:0)
+m#7#2                                               1 	(obj:0)
+m#8#1                                               1 	(obj:0)
+m#9#0                                               1 	(obj:0)

@@ -10,16 +10,6 @@ m#6#3                                               1   (obj:0)
 m#7#2                                               1   (obj:0)
 m#8#1                                               1   (obj:0)
 m#9#0                                               1   (obj:0)
-kt_abs#0#0#1                                        1 	(obj:0)
-kt_abs#1#1#1                                        1 	(obj:0)
-kt_abs#2#2#1                                        1 	(obj:0)
-kt_abs#3#3#1                                        1 	(obj:0)
-kt_abs#4#4#1                                        1 	(obj:0)
-kt_abs#5#5#1                                        1 	(obj:0)
-kt_abs#6#6#1                                        1 	(obj:0)
-kt_abs#7#7#1                                        1 	(obj:0)
-kt_abs#8#8#1                                        1 	(obj:0)
-kt_abs#9#9#1                                        1 	(obj:0)
 
 > {-# OPTIONS_GHC -fglasgow-exts #-}
 > module ParseSol where
@@ -36,6 +26,7 @@ kt_abs#9#9#1                                        1 	(obj:0)
 > import Test.QuickCheck
 > import qualified Data.Set as S
 > import Data.Function
+
 > import Solution
 > import Util
 
@@ -44,7 +35,7 @@ Provisorisch, parst die Abstaende bis jetzt gar nicht!
 > parseSol :: [NfNr] -> String -> IOMayfail Solution
 > parseSol nfnrs solString = case parse parseSol' "Scip-Solution" solString
 >                            of Left err -> fail $ show err
->                               Right (xs, ks) -> return $ Solution xs (M.union ks (stdKT Infinity nfnrs))
+>                               Right xs -> return $ Solution xs (stdKT Infinity nfnrs)
 
 
 > prop_getCyclesId (nl::[NonEmptyList NfNr]) = on (==) normalize lu
@@ -73,42 +64,26 @@ evalState :: State s a -> s -> a
 
 > -- cycles' M.empty c = c
 > cycle' m c@(v:_) = fromMaybe (m,c) 
+>                    
+>                                
 
 > parseSol' = do string intro
 >                ms <- many mLine
->                ks <- many kt_abs_line
 >                eof
->                return (M.fromList ms, M.fromList ks)
+>                return (M.fromList ms)
 
 > intro = "solution status: optimal solution found\n"
 >         ++"objective value:                                    0\n"
-
-m#5#4                                               1   (obj:0)
 
 > mLine = do string "m#"
 >            v <- number
 >            string "#"
 >            w <- number
 >            spaces
->            _ <- number
+>            n <- number
 >            spaces
 >            string "(obj:0)\n"
 >            return (NfNr v, NfNr w)
-
-
-kt_abs#9#9#1                                        1 	(obj:0)
-
-> kt_abs_line = do string "kt_abs#"
->                  v <- number
->                  string "#"
->                  w <- number
->                  string "#"
->                  d <- number
->                  spaces
->                  _ <- number
->                  spaces
->                  string "(obj:0)\n"
->                  return ((NfNr v,NfNr w),KT_Abs d)
 
 > number =  many digit
 >           >>= return . foldl (\a b -> 10*a+b) 0 . map (toInteger.digitToInt)
