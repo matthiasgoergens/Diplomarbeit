@@ -7,6 +7,8 @@
 > import qualified Data.Set as S
 > import Data.Maybe
 > import Debug.Trace
+> import Data.Maybe
+> import Control.Monad.Maybe
 
 > (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
 > (.:) f = curry . (f.) . uncurry
@@ -96,19 +98,20 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
            preda _ = False
 
 
-> newtype IOMayfail a = IOMayfail (IO (Maybe a))
+> --newtype IOMayfail a = IOMayfail (IO (Maybe a))
+> type IOMayfail = MaybeT IO
 
-> instance Monad IOMayfail where
->     return = IOMayfail . return . return
->     (>>=) a f = IOMayfail (bind (run a) (run . f))
->     fail s = trace s (IOMayfail $ return Nothing)
+ instance Monad IOMayfail where
+     return = IOMayfail . return . return
+     (>>=) a f = IOMayfail (bind (run a) (run . f))
+     fail s = trace s (IOMayfail $ return Nothing)
 
-> run :: IOMayfail a -> IO (Maybe a)
-> run (IOMayfail a) = a
+ run :: IOMayfail a -> IO (Maybe a)
+ run (IOMayfail a) = a
 
-> bind :: IO (Maybe a) -> (a -> IO (Maybe b)) -> IO (Maybe b)
-> bind a f = do r <- a
->               case r of Nothing -> return Nothing
->                         Just r' -> f r'
-> lift :: IO a -> IOMayfail a
-> lift f = IOMayfail (f >>= return . return)
+ bind :: IO (Maybe a) -> (a -> IO (Maybe b)) -> IO (Maybe b)
+ bind a f = do r <- a
+               case r of Nothing -> return Nothing
+                         Just r' -> f r'
+ lift :: IO a -> IOMayfail a
+ lift f = IOMayfail (f >>= return . return)
