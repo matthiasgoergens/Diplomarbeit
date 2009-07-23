@@ -9,9 +9,10 @@
 > import Debug.Trace
 > import Data.Maybe
 > import Control.Monad.Maybe
+> import BasicTools
+> import Solution
+> import Control.Applicative
 
-> (.:) :: (a -> b) -> (c -> d -> a) -> (c -> d -> b)
-> (.:) f = curry . (f.) . uncurry
 
 > apCar [] = error "apCar: Empty list has no first element to repeat at the end."
 > apCar l@(x:_) = l ++ [x]
@@ -21,12 +22,11 @@
 > prop_neighbours1Right (NonEmpty (l::[Int])) = tail l == map snd (neighbours1 l)
 
 > neighbours1 :: [a] -> [(a,a)]
-> neighbours1 [] = []
+> neighbours1 [] = error "Util.neighbours1: Empty list"
 > neighbours1 [_] = []
 > neighbours1 (a:r@(b:_)) = (a,b) : neighbours1 r
 
-> rotations :: [a] -> [[a]]
-> rotations z = init $ zipWith (++) (tails z) (inits z)
+
 
 > prop_permutation l = all ((== sort (l)).sort) (rotations l)
 >     where types = l :: [Int]
@@ -44,13 +44,8 @@
 >           off = off' `mod` len
 
 
-> stdKT :: Ord k => d -> [k] -> M.Map (k, k) d
-> stdKT deFault = M.fromList . map (flip (,) deFault) . cartProd
 
-> cartProd l = [(v,w) | v <- l, w<-l]
 
-> normalize :: Ord a => [[a]] -> [[a]]
-> normalize = sort . map (minimum . rotations)
 
 Das Set wird durchgereicht.  Also lieber StateMonad?
 
@@ -64,17 +59,50 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
 >                        | otherwise = let (xs', s') = op1 xs (S.insert x s)
 >                                      in (x:xs', s')
 
+ path_ :: (Ord a, Eq a) => M.Map a a -> a -> a -> Maybe [a]
+ path_ mNf a b = (a:) <$> path' a b
+     where path' a b = maybeToList (M.lookup a mNf
+                                    >>= flip path' b
+                                    >>= (return . (a:)))
+
+rop_follow (Positive n) = False
+
+> follow :: (Ord a) => M.Map a a -> a -> [a]
+> follow mNf = unfoldr op
+>     where op a = fmap ((,) a) $ M.lookup a mNf
+
+ path_ :: (Ord a) => M.Map a a -> a -> [a]
+ path_ mNf a = a : case M.lookup a mNf
+                   of Just b -> path_ mNf b
+                      Nothing -> []
+
 > path :: (Ord a, Eq a) => M.Map a a -> a -> a -> Maybe [a]
-> path mNf a b = path' a b
->     where path' a b = if (a == b)
->                       then Just [a]
->                       else M.lookup a mNf
->                                >>= flip path' b
->                                >>= (return . (a:))
+> path mNf a b = case [b] == take 1 r2
+>                of True -> Just result
+>                   False -> Nothing
+>     where (f:rest) = follow mNf a
+>           (r1,r2) = break (== b) rest
+>           result = (f : r1 ++ take 1 r2)
+
+ path mNf a b = path' a b
+     where path' a b = if (a == b)
+                       then Just [a]
+                       else M.lookup a mNf
+                                >>= flip path' b
+                                >>= (return . (a:))
+
+> prop_path_realWorldExample
+>     = trace (show p) $
+>       (p == Just [0,  9,  0])
+>       
+>     where m = M.fromList [(0, 9), (9, 0)]
+>           p = path m 0 0
 
 > prop_path1 = trace (show p)
 >              p == Just [2,3,1]
 >     where p = path (M.fromList [(1,2),(2,3), (3,1)]) 2 1
+
+Builds a mapping, with a guaranteed path between different nodes, and tests whether this path will be found.
 
 > prop_path (nl1 :: [NonEmptyList Int]) (l::[Int]) (m::[Int]) (r::[Int]) (nl2 :: [NonEmptyList Int])
 >               = Just (luBool lu) == path (mapping lu) (Right False) (Right True)
@@ -98,7 +126,6 @@ Das Set wird durchgereicht.  Also lieber StateMonad?
            preda _ = False
 
 
-> --newtype IOMayfail a = IOMayfail (IO (Maybe a))
 > type IOMayfail = MaybeT IO
 
  instance Monad IOMayfail where

@@ -19,6 +19,8 @@
 > import Control.Monad.Maybe
 > import Control.Applicative
 > import Safe
+> import Control.Exception
+> import BasicTools
 
 > import Util
 > import Config
@@ -114,8 +116,6 @@ findFault searches the IP solution for differences between
 matching-implied distances and distances indicated by the `ks_abs' variables in
 the solution.
 
-Nothing means error in combine.  Should not happen!
-
 > findFault :: M.Map NfNr Nutzfahrt -> Solution -> (M.Map (NfNr,NfNr) Ordering)
 > findFault zzuege (Solution mNf mapping) = fromMaybe (error "Error in Combine.  This should not happen!") .
 >                                           liftA (M.filter (/=EQ) . M.map (uncurry compare))
@@ -137,25 +137,37 @@ correctFaults zzuege sol faults =
 > correctFault _ _ _ EQ = (error "(correctFault _ _ EQ) should not happen!")
 
 > pathConstraint :: M.Map NfNr Nutzfahrt -> Solution -> NfNr -> NfNr -> Maybe Constraint
-> pathConstraint zzuege (Solution mNf _) a b
+> pathConstraint zzuege sol@(Solution mNf _) a b
 >                    = PathConstraint a b <$> n <*> (s <$> n)
->     where n = neighbours1 <$> path mNf a b
+>     where n = neighbours1 <$> (p' p)
 >           s = sum . map (uncurry (d2' zzuege))
+>           p = path mNf a b
+>           p' = trace ("zimplify, " ++
+>                          -- show sol ++ "\n" ++
+>                       "\tcycles:\t"++show (getCycles mNf)++
+>                       "\n\t\ta,b:\t"++show (a,b)++
+>                       "\n\tp:\t"++show p++
+>                       "\n\tmNf:\t"++show mNf
+>                      )
+
 
 > cutConstraint _ _ _ _ = Nothing
 
 
 > zimplify :: Constraint -> String
-> zimplify pc@(PathConstraint (NfNr s) (NfNr t) path d) = "subto " ++ name ++ ":\n"
->                                        ++ "\t" ++ lhs ++ "\n"
->                                        ++ "\t<=" ++ rhs ++ ";\n"
+> zimplify pc@(PathConstraint (NfNr s) (NfNr t) path d)
+>     = assert (not . null $ path) $ 
+>       "subto " ++ name ++ ":\n" ++
+>       "\t" ++ lhs ++ "\n" ++
+>       "\t<=" ++ rhs ++ ";\n"
 >     where name :: String
->           name = join . map ((++"_") . show . untag) $
->                  (fst (headNote ("zimplify: "++ show pc) path) : map snd path)
+>           name = "path" ++
+>                  (join . map ((++"_") . show . untag) $
+>                   (fst . head $ path) : map snd path)
 >           untag (NfNr x) = x
 >           lhs = (++"(-1) "). join . map ((++"+") . uncurry m) $ path
 >           m (NfNr a) (NfNr b) = "m["++show a ++", "++show b++"]"
->           rhs = "kt_abs["++show s++","++show t++","++show d++"]"
+>           rhs = "kt_abs["++show s++","++show t++","++show (unKT_Abs d)++"]"
 >           
 >           
 >                    
@@ -208,7 +220,9 @@ parseSol nfnrs solFile
 
 > loop :: [Constraint] -> IOMayfail Solution
 > loop constraints
->     = do sol <- solve constraints
+>     = do lift (print "before solving.")
+>          sol <- solve constraints
+>          lift (print "after solving.")
 >          let faults :: Solution -> [((NfNr,NfNr), Ordering)]
 >              faults sol = M.toList $ findFault zzuege sol
 >              cFault :: Solution -> ((NfNr, NfNr), Ordering) -> Constraint
@@ -216,7 +230,6 @@ parseSol nfnrs solFile
 
 >              nConstraints :: Solution -> [((NfNr,NfNr), Ordering)] -> [Constraint]
 >              nConstraints sol = map (cFault sol)
->              
 >          loop . (constraints ++) . nConstraints sol $ faults sol
 
 
