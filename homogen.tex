@@ -71,10 +71,10 @@
 \title{Homogeneous vehicle schedules}
 
 \begin{abstract}
-  Although most railroad timetables remain in use for half a
-  year, they tend to repeat themself each week.  Thus one can also
-  repeat their implementations in rolling stock, the vehicle
-  schedulings, each week.
+  Although most railroad timetables remain in use for half a year,
+  they tend to repeat themself each week.  Thus one can also repeat
+  their implementations in rolling stock, the vehicle schedulings,
+  each week.
 
   But timetables show even more structure: All the working days of the
   week are usually identical.  This work sets out to investigate how
@@ -87,52 +87,77 @@
 \maketitle
 \todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 
+\todo{Hannos Ideen: Morphismen zwischen Torus (Umlauftag, Verkehrstag)
+  und Nutzfahrketten aufschreiben.  Homogene Umläufe entsprechen
+  \((+1,+1)^n\) trips auf dem Torus, die aber nicht notwendig
+  partitionieren.  (Es kann Patz auf dem Torus bleiben.)
+
+  I.A. Mehrere Tori nötig.  Wenn nur komplett gefüllte Tori, dann
+  haben wir echte Homogenität. Homegenität.
+  
+  Homogenität kann (immer) hergestellt werden durch Teilen von
+  Zügen.  (Minimiere diese Zahl, wenn nötig.)  Einfacher zu
+  handhaben als abweichende Wenden.}
+
 \section{Introduction}
 Unlike individual traffic in cars, railroads in Germany are run by
-only a few companies and of those DB controls a huge
-majority.  In principle the planning required can be centralized for
-coordination.  Thus one can exploit effects of synergy.  Even
-relatively modest relative improvements can have a huge absolute
-impact.  So it is worthwhile to solve the encountered problems to
-optimality.
+only a few companies and of those Deutsche Bahn (and its subsidaries)
+control a huge majority.  In principle the planning required can be
+centralized for coordination.  Thus one can exploit effects of
+synergy.  Even relatively modest relative improvements can have a huge
+absolute impact.  So it is worthwhile to solve the encountered
+problems to optimality.
 
-One large block---or even the largest--- of opportunities for
+One large block---or even the largest---of opportunities for
 mathematical planning in this contexts lies in the area of scheduling.
 Currently at Deutsche Bahn the system for planning schedules is
 multi-tiered.  This paper has been written while working at department
 GSU1 of DB Mobility Logistics.  The focus at GSU1 is on
 improving the process of (strategic) vehicle schedulings.
 
-As a passenger one only interfaces with the timetables, that specify
-when and where a train will arrive and depart.  One does not care too
-much which specific physicial train one is using or what it does
-before and after the trip.
+As a customer one only sees the timetables, that specify when and
+where a train will arrive and depart to take on or load off cargo or
+passengers.  One does not care too much which specific physicial train
+one is using or what it does before and after the trip.
+
+Naturally the railroad company - in contrast - does care about what
+happens to a train after it finishes one trip.  Normally it goes on to
+provide another trip to paying customers.  From time to time there
+will also be maintenance stops.
+
+We will only be concerned with strategic planning, that is about the
+connection between trips on a regular schedule planned in advance.  In
+the field the best laid plans often need patching on the fly, because
+of unforeseen circumstances like accidents.  An activity called
+operational planning and outside the scope of this work.  Also we will
+view the timetables of trips offered to the customers as fixed to
+reflect the conditions encountered at GSU1.
 
 \todo{Ein abregenzendes Wort zu timetable und operationeller Plannung
   im Vergleich.}
 
-Naturally the railroad  It has to re-use them.  Various costs have to be
-taken into account.  Introducing our first bit of notation we call
-trips offered to the customer \textit{service trips} (or Nutzfahrten
-in German) and other trips will be called \textit{deadhead trips}
-(Leerfahrten in German).  Deadhead trips may be necessary because a
-station may have an unequal number of service trips departing and
-arriving over the course of a week.  Or the number is equal, and the
-station could keep the balance in theory, but only with long
-unproductive standing times for the trains.
+Introducing our first bit of notation we call trips offered to the
+customer \textit{service trips} (or Nutzfahrten in German) and other
+trips will be called \textit{deadhead trips} (Leerfahrten in German).
+Deadhead trips may be necessary because a station may have an unequal
+number of service trips departing and arriving over the course of a
+week.  Or the number is equal, and the station could keep the balance
+in theory, but only with long unproductive standing times for the
+trains.
 
-The most important objective concerns the minimization of the number
-of trains needed to honour all required service trips in the
-timetable.  Avoiding deadhead trips ranks second.  They cost man-hours,
-fuel, and bring the next obligatory maintenance closer.  Most types of
-maintenance are scheduled every time a train has travelled a certain
-distance.
+The objective of strategic planning is to reduce the cost of
+implementing a fixed timetable.  The number of locomotives needed
+contributes the biggest chunk to those costs.  Avoiding deadhead trips
+also saves some money, as they cost man-hours, fuel, and bring the
+next obligatory maintenance closer.  Because most types of maintenance
+aren't scheduled in fixed time intervals, but after certain distances
+travelled.
 
 Most timetables are in use for half a year.  They tend to repeat every
 week.  At the current state of the art, strategic vehicle schedule
 planning ignores the start and end of the period and pretends to work
-on an infinite cycle of identical weeks.  This allows to collapse an
-infite linear model of time to a cycle of just one week.
+on an infinite cycle of identical weeks.  This rolls up a long
+schedule to a more tractable cycle of just one week.
 
 Strategic vehicle schedule planning in essence takes in cyclic
 timetables (plus possible non-cyclic extra trips) and puts out vehicle
@@ -141,31 +166,35 @@ between schedules.
 
 Deutsche Bahn has only recently brought sophisticated math to bear on
 these issues.  There are legacy heuristics in place that solved (and
-do solve) scheduling, but with no guarantees of optimality.  Also
-customs and preferences have developed.
+do solve) scheduling problems, but with no guarantees of optimality.
+Also customs and preferences have developed.
 
 For example planners prefer their schedule to be as homogenous as
 possible.  \todo{Why?} In former times the days have been planned as
 blocks and only later have the individual plans been fused.
+\todo{Hannos Erklärung einbauen.}
 
 The new methods based on mixed integer programming consider the whole
 week right from the start.  Apart from the partly repeating schedule
 they have no cause to use similar vehicle schedulings on the working
 days.  But planners have come to price the homogeneity as an end in
-itself, because their preferred visualization of schedules
-looks more pleasing in the presence of homogeneity.
-\todo{Add more about blocks. Visualization.}
+itself, because their preferred visualization of schedules looks more
+pleasing in the presence of homogeneity.  \todo{Add more about
+  blocks. Visualization.}
 
-\todo{Noch mehr Grundlagen.  Ausfuehrungen zu Betriebsablauf bei der Bahn.}
+\todo{Noch mehr Grundlagen.  Ausfuehrungen zu Betriebsablauf bei der
+  Bahn.}
 
 \section{Thanks}
 Thanks to Hanno Schülldorf, Volker Kaibel and Andreas Huck for their
-help.
-\todo{Noch ein paar mehr Leute auffuehren.}
+help.  \todo{Noch ein paar mehr Leute aufführen.}
 
 \section{Some definitions}
 
 \todo{Noch mehr mathematische Grundlagen?  Column and Row generation?}
+
+\todo{Hanno schlägt vor, Beispiel (Woche = 7 Tage) und allgemeine
+  Theorie zu trennen.}
 
 Let \(G=(V,A)\) be a digraph of connected stations, \eg{} ordinary
 railway stations, maintenance shops.  Now look at \label{trains}
@@ -251,7 +280,7 @@ of one class \(c_1\) only be succeeded by members of the same class
 offered all week would be banned from being connected to a class of trains that
 are not offered on the weekend.
 
-\todo{motivation.  faellt aus der luft.. zitat der begriffsbestimmung.}
+\todo{motivation.  fällt aus der luft.. zitat der begriffsbestimmung.}
 So we introduce a weaker condition.  A schedule \(S\) is called
 homogenous iff:
 \begin{defn} Given
@@ -356,7 +385,7 @@ Now we only have defined a way to measure time-distances in the
 vehicle schedule in a linear integer program.  We still have to
 incorporate the actual homogeneity constraints laid out in equation
 \ref{homoEq}.  But this is simple as we only have to convert
-\ref{homoEq} from using \(\ol{\Delta}_S\) to an expression in terms of \(\delta\).
+equation \ref{homoEq} from using \(\ol{\Delta}_S\) to an expression in terms of \(\delta\).
 
 \begin{defn}
 Given
@@ -392,7 +421,7 @@ where \(\oplus\) is the Minkowski sum.
 
 Thus all \(\delta (s, t, z)\) with \(z \notin \{d (s,t)\} \oplus w
 \mathbb{Z}\) vanish.  Furthermore because of the way \(\Delta_S\) is
-defined in \ref{defDelta} we can bound it from above and below. Call
+defined in equation \ref{defDelta} we can bound it from above and below. Call
 \begin{equation}
 M := \sum_{(r,q) \in T \times T} d (r,q)
 \end{equation}
@@ -400,8 +429,8 @@ and note
 \[0 \leq \Delta_S(s,t) \leq M \textrm{.}\]
 
 
-Now for every \(s,t \in T\) the equations in an infinite number of
-variables described by \ref{onlyOne} can be replaced by the finite:
+Now for every \(s,t \in T\) the relation in an infinite number of
+variables described by constraint \ref{onlyOne} can be replaced by the finite:
 \begin{align}
   \label{onlyOneFinite}
   \mathop{\sum_{z \in \left\{d (s,t)\right\} \oplus w \mathbb{N}_0}}_{z\leq M} \delta(r, q, z) & \leq 1 
@@ -433,7 +462,7 @@ Now we can rewrite \ref{onlyOneFinite} and \ref{zwingRunterFinite}:
 \end{align}
 
 Putting \ref{zwingHoch} into the new form poses bigger
-problem. \todo{Warum?  Hier erklaerung einfuegen.}  For every path \(P
+problem. \todo{Warum?  Hier erklärung einfuegen.}  For every path \(P
 \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
 \[
 %\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
@@ -446,14 +475,14 @@ and thus:
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1
 \end{align}
 
-\todo{Vorher koennten wir n fuer jeden Bogen unabhaeging waehlen.  Jetzt
-  muessen wir eine Abhaengigkeit fordern.  Gluecklicherweise koennen wir das statisch
+\todo{Vorher könnten wir n fuer jeden Bogen unabhäging wählen.  Jetzt
+  muessen wir eine Abhängigkeit fordern.  Gluecklicherweise können wir das statisch
   bestimmen!
 
-  Was ist die Laenge von \(P\) in terms of n in abhaengigkeit der
+  Was ist die Länge von \(P\) in terms of n in abhängigkeit der
   zwischenschritte?  Und das hat auch geklappt in \ref{zwingHochFiniteN}}
 
-\todo{Formuliere das verendlichte Problem konkret-komplett.  Und fuege die eigentliche homogenitaetsbedingung hinzu!}
+\todo{Formuliere das verendlichte Problem konkret-komplett.  Und fuege die eigentliche homogenitätsbedingung hinzu!}
 
 We can express the constraint \ref{homoEqLin} in terms of \(D\), too:
 \begin{itemize}
@@ -497,7 +526,7 @@ Thus \(O\lr{\abs{T}^4}\) variables constitute \(m\), which
 dwarves the contribution of \(D\).
 
 \todo{Referenzen zu den relevanten Gleichungen und Namen einfuehren
-  fuer die O() schaetzungen.}
+  fuer die O() schätzungen.}
 
 All in all the problem lives in relatively small polynomial number of
 binary variables.  However the number of constraints is exponential:
@@ -532,13 +561,13 @@ All other variables are treated as parameters set to zero.
 We analyse the solutions obtained.  The variables \(m\) specify a
 graph made of cycles.  For every cycle we can get the distance
 \(\Delta\) between all of its nodes by straight-forward counting in
-time \(O(T^2)\) \todo{Details zum Zaehlen.} (or employing Bellman-Ford
+time \(O(T^2)\) \todo{Details zum Zählen.} (or employing Bellman-Ford
 etc).  All distances between nodes in different cycles are \(\infty\)
 by definition \ref{defDelta}.  \todo{Perhaps use lazy evaluation to enumerate
   all flaws.  Pick the first.}
 
 First check \ref{onlyOne} for every pair of vertices.  If a pair, say
-\(s,t\), violates \ref{onlyOne}, let 
+\(s,t\), violates \ref{onlyOne}, let
 \begin{equation}
 B := \left\{z\leq M \mid
   \delta(r,q,z) = 1\right\} \cap {\left\{d (s,t)\right\} \oplus w
@@ -574,7 +603,7 @@ If \ref{onlyOne} holds, \(D\) implies a \(\ol{\Delta_S}\).  Calculate
 At the beginning there will be variables that are not present in any
 constraint.  A solver like \textsc{Cplex} will only add them to the
 problem as the constraints make them have an impact \ie as they show
-up with at least one non-zero coefficient in at least one constraint
+up with at least one non-zero cöefficient in at least one constraint
 or the objective function.
 
 \subsection{Estimating the runtime of the oracle}
@@ -586,7 +615,7 @@ or the objective function.
 Homogeneity is a very soft objective, \ie its value is hard to measure
 in money.  Partly, the effort invested in achieving homogeneity is
 intended to enhance adoption of the other optimizing work done at
-department \textsc{Gsu1}.
+department GSU1.
 
 \section{Implementation}
 Implementation will be done in the \textsc{Cplex}-framework existing at
