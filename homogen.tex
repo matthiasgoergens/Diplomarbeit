@@ -323,11 +323,70 @@ edges used:
 \end{remark}
 
 \subsection{The block formulation gives rise to homogeneity}
-\todo{Blockdarstellung auf englisch?}
+\todo{Hannos Ideen: Morphismen zwischen Torus (Umlauftag, Verkehrstag)
+  und Nutzfahrketten aufschreiben.  Homogene Umläufe entsprechen
+  \((+1,+1)^n\) trips auf dem Torus, die aber nicht notwendig
+  partitionieren.  (Es kann Patz auf dem Torus bleiben.)
 
-At Deutsche Bahn another approach is also in use.
+  I.A. Mehrere Tori nötig.  Wenn nur komplett gefüllte Tori, dann
+  haben wir echte Homogenität.
+  
+  Homogenität kann (immer) hergestellt werden durch Teilen von
+  Zügen.  (Minimiere diese Zahl, wenn nötig.)  Einfacher zu
+  handhaben als abweichende Wenden.}
+
+\todo{Notation vernünftig einführen.}
+
+At Deutsche Bahn another approach is also in use.  It stems from the
+desire to visualize timetables and schedules and is the traditional
+formulation.  This approach, called the block formulation, naturally
+leads to homogeneity.
+
+The visualization of the block formulation displays the vehicle
+schedulings as a two-dimensional table.  From left to right (and then
+logically wrapping around to the left again) runs the time-axis, with
+columns for the days of the week (Verkehrstage in German) and inside
+each column the time of the day.  Each service trip is an interval on
+this axis.  From top to bottom the diagram is split into an integral
+number of virtual days (Umlauftage in German).  Several virtual days
+make up a cycle, and there are in general more than one of those
+cycles per vehicle scheduling.  The virtual days are basically used to
+give different trips on the same weekday different coordinates.  One
+can view each part of the table that consists of a single cycle of
+virtual days, as a torus, because it logically wraps around on both
+axes.\todo{Ist axes die Mehrzahl von axis?}
+
+At any given point in time each virtual day corresponds to one
+locomotive, that drives all service trips on that weekday and on that
+virtual day.  On the next weekday each locomotive goes on to the next
+virtual day in its cycle.  Thus trips that can't be done by one
+locomotive can't have the same coordinates.  They need to differ in
+their virtual day.
+
+Just like each trip gets repeated every week, the schedule of a single
+locomotive repeats every \(\operatorname{lcm} \lr{w, u}\) days, where
+\(w\) is the number of days in a week and \(u\) is the length of the
+cycle of virtual days of this locomotive.
+
+Only tori where every locomotive visits combination of weekday and
+virtual day, that is \(\gcd{} \lr{w,u} = 1\), are considered proper in
+the existing literature at Deutsche Bahn.  But we will extend the
+notion to tori partitioned into more than one orbit.
+
+A schedule is said to be homogeneous if for any given train all its
+trips happen on the same virtual day.  If homogeneity causes more
+locomotives to be used than optimal, the planners violate it in two
+different ways: Trains are split up into different virtual days, and
+locomotives may continue to a virtual day that is different from the
+`next' in the cycle.  (This is called abweichende Wenden in German.
+The normal continuation on the next virtual day are called logische
+Wenden.)
+
 
 \subsection{Homogeneity in the matching model}
+
+\todo{Züge should be introduced earlier, so that the section above can reference them.}
+\todo{Morphism between matching model and block formulation.}
 
 In practise timetables repeat every week \ie{} \(w = 7 \textrm{ days}\).
 This work will deal with timetables that show more structure: Fix an
@@ -422,62 +481,6 @@ v &\mapsto \left\{ u \colon \left(u,v\right) \in \ina(v) \right\}\\
 v &\mapsto \left\{w \colon \left(v,w\right) \in \outa\left(v\right) \right\}\\
 \end{align*}
 \end{defn}
-
-\section{Tori}
-
-\todo{Hannos Ideen: Morphismen zwischen Torus (Umlauftag, Verkehrstag)
-  und Nutzfahrketten aufschreiben.  Homogene Umläufe entsprechen
-  \((+1,+1)^n\) trips auf dem Torus, die aber nicht notwendig
-  partitionieren.  (Es kann Patz auf dem Torus bleiben.)
-
-  I.A. Mehrere Tori nötig.  Wenn nur komplett gefüllte Tori, dann
-  haben wir echte Homogenität.
-  
-  Homogenität kann (immer) hergestellt werden durch Teilen von
-  Zügen.  (Minimiere diese Zahl, wenn nötig.)  Einfacher zu
-  handhaben als abweichende Wenden.}
-
-\todo{Notation vernünftig einführen.}
-
-The traditional view, that naturally produces homogeneous vehicle
-schedulings, puts them into a kind of torus; \ie{} a cartesian
-product of two cyclic groups.  One group consists of the days of the
-week (or whichever period it is, that is repeated).  The other group
-is more abstract and is basically used to give different trips on the
-same weekday different coordinates.  The first group is called
-Verkehrstage in German.  We will employ the simpler term weekdays or
-days of the week.  The second group is called Umlauftage, and we will
-call them virtual days.
-
-Pretending for the moment that service trips do not span more than one
-day, each trip gets assigned its day of the week and a virtual day as
-its coordinates on a torus.  A locomotive will start implementing the
-schedule on a certain coordinate, too.  It will do all trips with this
-coordinates.  Thus trips that can't be done by one locomotive can't
-have the same coordinates.  They need to differ in their virtual day.
-After the day has passed, the locomotive will go on to the trips with
-coordinates \(\lr{+1,+1}\) from where it was.
-
-\todo{Is \(\operatorname{lcm}\) (least common multiple) the
-  common term for kgV?}
-
-Just like each trip gets repeated every week, the schedule of a
-single locomotive repeats every \(\operatorname{lcm} \lr{w, u}\) days,
-where \(w\) is the number of days in a week and \(u\) is the order of
-the group of virtual days for this locomotive.
-
-In general a torus needs as many locomotives as it has virtual days.
-Only tori that consist of a single cycle, that is \(\gcd{} \lr{w,u} =
-1\) or \(\lrX{\lr{+1,+1}} = W \times U\), are considered proper in the
-existing literature at Deutsche Bahn.  But we will extend the notion
-to tori partitioned into more than one orbit under \(\lrX{\lr{+1,+1}}\).
-
-A schedule is said to be homogeneous if for any given train all its
-trips happen on the same virtual day.  If homogeneity causes more
-locomotives to be used, the planners violate it in two different ways:
-Trains are split up into different virtual days, and locomotives may
-continue to a coordinate different from adding \(\lr{+1,+1}\).
-
 
 \section{An infinite integer linear program}
 \label{infIP}
