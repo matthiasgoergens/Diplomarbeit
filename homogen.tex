@@ -64,6 +64,7 @@
 
 \newcommand{\reals}{\ensuremath{\mathbb{R}}}
 \newcommand{\naturals}{\ensuremath{\mathbb{N}}}
+\newcommand{\integers}{\ensuremath{\mathbb{Z}}}
 \newcommand{\rationals}{\ensuremath{\mathbb{Q}}}
 
 \newcommand{\Hom}{\ensuremath{\mathrm{Hom}}}
@@ -252,7 +253,7 @@ We will assume that no trip takes longer than one cycle and
 we will identify cyclic timetables with their image under the canonic
 morphism
 \[\left(V \times \rationals\right)^2 \to
-\left(V \times \rationals/{\left(w \mathbb{Z}\right)}\right)^2\text{.}\]
+\left(V \times \rationals/{\left(w \integers\right)}\right)^2\text{.}\]
 
 \subsection{The matching model for schedules}
 
@@ -345,10 +346,10 @@ leads to homogeneity.
 The visualization of the block formulation displays the vehicle
 schedulings as a two-dimensional table.  From left to right (and then
 logically wrapping around to the left again) runs the time-axis, with
-columns for the days of the week (Verkehrstage in German) and inside
+columns for the days of the week (\textit{Verkehrstage} in German) and inside
 each column the time of the day.  Each service trip is an interval on
 this axis.  From top to bottom the diagram is split into an integral
-number of virtual days (Umlauftage in German).  Several virtual days
+number of virtual days (\textit{Umlauftage} in German).  Several virtual days
 make up a cycle, and there are in general more than one of those
 cycles per vehicle scheduling.  The virtual days are basically used to
 give different trips on the same weekday different coordinates.  One
@@ -363,6 +364,9 @@ virtual day in its cycle.  Thus trips that can't be done by one
 locomotive can't have the same coordinates.  They need to differ in
 their virtual day.
 
+\todo{Why do they not jump to the next virtual day only at the end of
+  a week?  Hanno says in freight they do.  Pros and Cons?}
+
 Just like each trip gets repeated every week, the schedule of a single
 locomotive repeats every \(\operatorname{lcm} \lr{w, u}\) days, where
 \(w\) is the number of days in a week and \(u\) is the length of the
@@ -373,6 +377,16 @@ virtual day, that is \(\gcd{} \lr{w,u} = 1\), are considered proper in
 the existing literature at Deutsche Bahn.  But we will extend the
 notion to tori partitioned into more than one orbit.
 
+\begin{defn}[Block Formulation]
+  The block formulation can be formalized as a sequence \(U_i = \integers / \lr{l\lr{i} \integers}\) of
+  cycles of virtual days with length \(l \colon \naturals \to \naturals\).  And a mapping \(a\) that
+  assigns each service trip to a virtual day in the cycles:
+  \[a \colon T \to \bigcup_{i \in \naturals} \lrM{i} \times U_i\]
+  Service trips that overlap in time can not be part of the same virtual day.
+  We can further demand \(l\) to be antitonic.
+  \todo{Und Verkehrstag ist u.U. nicht genau festgelegt, wenn Fahrten über Mitternach gehen.}
+\end{defn}
+
 A schedule is said to be homogeneous if for any given train all its
 trips happen on the same virtual day.  If homogeneity causes more
 locomotives to be used than optimal, the planners violate it in two
@@ -382,6 +396,45 @@ locomotives may continue to a virtual day that is different from the
 The normal continuation on the next virtual day are called logische
 Wenden.)
 
+\subsection{A morphism between the matching formulation and the block formulation}
+
+How can we transform the assignment \(a\) (and lengths of cycles
+\(l\)) of the block formulation into the perfect matching \(M\) of the
+matching formulation, and vice versa?
+
+First the easy direction: Given \(a\) and \(l\).  Given two service
+trips \(v, w \in T\), and the sets \(v^> := \lrM{x \in T \mid a\lr{x}
+  = a\lr{v}, \dep\lr{x} > \dep\lr{v}}\) and \(w^< := \lrM{x \in T \mid
+  a\lr{x} = a\lr{w}, \dep\lr{x} < \dep\lr{w}}\), the match
+\(\lr{\arr\lr{v}, \dep\lr{w}}\) will be in included in the matching
+\(M\) if and only if
+\begin{itemize}
+\item the service trips are on the same virtual \(a \lr{v} = a \lr{w}\) and there is no service trip between them \ie
+  \(v^> \cap w^< = \emptyset\)
+\item \textsc{or} \(v\) and \(w\) are the latest respective first service trip in their virtual days (\(v^> = \emptyset\) and \(w^< = \emptyset\))
+  and
+  \begin{itemize}
+  \item \(v\) and \(w\) are on consecutive virtual days (\(\lr{i, u} := a\lr{v}\) and \(\lr{i, u+1} = a\lr{w}\)) and
+  \item and on consecutive weekdays (\(\left\lfloor \dep\lr{v}\right\rfloor + 1 = \left\lfloor \dep\lr{w}\right\rfloor \))
+  \end{itemize}
+\end{itemize}
+
+The other direction is slightly more complicated.  Given \(M\).  Start
+with any service trip \(v \in T\) and a count of cycles \(i := 0\).  Assign \(a\lr{v} = \lr{0,0}\).
+Continue with the trip \(w \in T\) whose departure is matched to
+\(v\)'s arrival.  Consider two cases:
+\begin{itemize}
+  \item If \(w\) has not been assigned a virtual day, yet, then assign \(a\lr{w} := a\lr{v} + \left\lfloor \dep\lr{w}\right\rfloor - \left\lfloor \dep\lr{v}\right\rfloor \).  Continue with the successor of \(w\).
+  \item If \(w\) has already been assigned a virtual day, then assign
+    \(l\lr{i} = a\lr{w} + 1\).  Continue with a new index \(i' = i+1\)
+    and a new service trip, if there are any left.
+\end{itemize}
+
+After this procedure we may be able to merge cycles of virtual days.
+This may be the case if \(\gcd \lr{w, l\lr{i}} > 1\).  Where \(w\) is the number of days in the week.1
+
+\todo{Continue with Merging.}
+      
 
 \subsection{Homogeneity in the matching model}
 
