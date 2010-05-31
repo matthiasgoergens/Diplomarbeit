@@ -1,11 +1,10 @@
-% Plan: Homomorphismus von Hanno einbauen,
-%       Beispiel und Allgemeines in Einleitung trennen.
-%       Historie korrigieren (Umlauftage richtig darstellen!)
+% Plan: Beispiel und Allgemeines in Einleitung trennen.
 
 \documentclass[a4paper]{amsart}
 \usepackage{a4}
 \usepackage{charter}
 
+% \usepackage[fulladjust]{marginnote}
 \usepackage[english]{babel}
 \usepackage[utf8]{inputenc}
 \usepackage{amssymb}
@@ -28,6 +27,7 @@
 % ---- LATIN ----
 \def\etal{\emph{et~al.}}
 \def\ie{\emph{i.e.}}
+\def\Ie{\emph{I.e.}}
 \def\eg{\emph{e.g.}}
 \def\vitae{vit\ae{}}
 \def\apriori{\emph{a~priori}}
@@ -43,12 +43,18 @@
 % Other
 \def\Cpp{C\raisebox{0.5ex}{\tiny\bf++}}
 
+%\todo does not work in the abstract.
+
+v\newcommand{\ol}[1]{\overline{#1}}
+
+
 \newcommand\mpar[1]{\marginpar {\flushleft\sffamily\small #1}}
 \setlength{\marginparwidth}{3cm}
 \setlength{\marginparpush}{1cm}
 
-\newcommand{\ol}[1]{\overline{#1}}
-\newcommand{\todo}[1]{\mpar{#1}}
+\newcounter{todo}
+\newcommand{\todo}[1]{\({}^{\text{{\arabic{todo}}}}\) \mpar{todo \arabic{todo}: #1} \addtocounter{todo}{1}}
+\newcommand{\redo}[1]{\({}^{\text{{\arabic{todo}}}}\) \mpar{remark \arabic{todo}: #1} \addtocounter{todo}{1}}
 %\newcommand{\todo}[1]{\footnote{#1}}
 
 \DeclareMathOperator{\In}{in}
@@ -73,11 +79,10 @@
 \newcommand{\abs}[1]{\ensuremath{\left|#1\right|}}
 % lr := left right
 \newcommand{\lr}[1]{\ensuremath{\left( #1 \right)}}
-% lrX := left right fuer spitze Klammern
+% lrX := left right für spitze Klammern
 \newcommand{\lrX}[1]{\ensuremath{\left< #1 \right>}}
-% lrM := left right fuer Mengen
+% lrM := left right für Mengen
 \newcommand{\lrM}[1]{\ensuremath{\left\{ #1 \right\}}}
-
 
 \usepackage{hyperref}
 \begin{document}
@@ -87,38 +92,38 @@
 
 \begin{abstract}
   Although most railroad timetables remain in use for half a year,
-  they tend to repeat themself each week.  Thus one can also repeat
+  they tend to repeat each week.  Thus one can also repeat
   their implementations in rolling stock, the vehicle schedulings,
-  each week.
+  each week.  %\todo{Is this always the most efficient think to do?}
 
-  But timetables show even more structure: All the working days of the
-  week are usually identical.  This work sets out to investigate how
-  to preserve this similarity in vehicle schedulings.  We define
-  homogeneous vehicle schedulings, establish a measure of partial
-  homogeneity and search for ways to efficiently find the most
+  But timetables tend to show even more structure: All the working
+  days of the week are usually identical.  This work sets out to
+  investigate how to preserve this similarity in vehicle schedules in
+  a linear integer model.  We define these schedules as
+  \textit{homogeneous} vehicle schedules, establish a measure of
+  partial homogeneity and search for ways to efficiently find the most
   homogeneous vehicle scheduling for a given timetable.
 \end{abstract}
 
 \maketitle
 \tableofcontents
-\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
-
-
+%\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 
 \section{Introduction}
 Unlike individual traffic in cars, railroads in Germany are run by
 only a few companies and of those Deutsche Bahn (and its subsidaries)
 control a huge majority.  In principle the planning required can be
-centralized for coordination.  Thus one can exploit effects of
-synergy.  Even relatively modest relative improvements can have a huge
-absolute impact.  So it is worthwhile to solve the encountered
+centralized for coördination.  Thus one can exploit effects of synergy
+at the cost of central information gathering and efforts of
+computation.  Even relatively modest relative improvements can have a
+huge absolute impact.  So it is worthwhile to solve the encountered
 problems to optimality.
 
 One large block---or even the largest---of opportunities for
-mathematical planning in this contexts lies in the area of scheduling.
-Currently at Deutsche Bahn the system for planning schedules is
-multi-tiered.  This paper has been written while working at department
-GSU1 of DB Mobility Logistics.  The focus at GSU1 is on
+mathematical planning in this contexts lies in the area of scheduling
+locomotives.  Currently at Deutsche Bahn the system for planning
+schedules is multi-tiered.  This paper has been written while working
+at department GSU1 of DB Mobility Logistics.  The focus at GSU1 is on
 improving the process of (strategic) vehicle schedulings.
 
 As a customer one only sees the timetables, that specify when and
@@ -126,30 +131,41 @@ where a train will arrive and depart to take on or load off cargo or
 passengers.  One does not care too much which specific physicial train
 one is using or what it does before and after the trip.
 
-Naturally the railroad company - in contrast - does care about what
-happens to a train after it finishes one trip.  Normally it goes on to
+Naturally the railroad company---in contrast---does care about what
+happens to a train after it finishes a trip.  Normally it goes on to
 provide another trip to paying customers.  From time to time there
-will also be maintenance stops.
+will also be maintenance stops or trips to another station without
+moving freight or passengers.
 
-We will only be concerned with strategic planning, that is about the
+We will only be concerned with strategic planning, that is with the
 connection between trips on a regular schedule planned in advance.  In
 the field the best laid plans often need patching on the fly, because
-of unforeseen circumstances like accidents.  An activity called
-operational planning and outside the scope of this work.  Also we will
-view the timetables of trips offered to the customers as fixed to
-reflect the conditions encountered at GSU1.
+of unforeseen circumstances like accidents, faults or labor strikes.
+An activity called operational planning and outside the scope of this
+work.  Also we will view the timetables of trips offered to the
+customers as fixed parameters to reflect the conditions encountered at
+GSU1: Another department decides about the timetables.  Also we won't
+care how to transition between different schedules; we will view a
+schedule as valid forever.  In practise the problem of transition
+arises at least once twice a year, Since most timetables are in use
+for half a year.  They tend to repeat every week.  At the current
+state of the art, strategic vehicle schedule planning ignores the
+start and end of the period and pretends to work on an infinite cycle
+of identical weeks.  This rolls up a long schedule to a more tractable
+cycle of just one week.
 
-\todo{Ein abregenzendes Wort zu timetable und operationeller Planung
-  im Vergleich.}
+\redo{Ein abregenzendes Wort zu timetable und operationeller Planung
+  im Vergleich?  Vielleicht reicht das jetzt schon so.}
 
 Introducing our first bit of notation we call trips offered to the
-customer \textit{service trips} (or Nutzfahrten in German) and other
-trips will be called \textit{deadhead trips} (Leerfahrten in German).
-Deadhead trips may be necessary because a station may have an unequal
-number of service trips departing and arriving over the course of a
-week.  Or the number is equal, and the station could keep the balance
-in theory, but only with long unproductive standing times for the
-trains.
+customer \textit{service trips} (\textit{Nutzfahrten} in German) and
+other trips will be called \textit{deadhead trips}
+(\textit{Leerfahrten} in German).  Deadhead trips may be necessary
+because a the numbers of service trips departing from and arriving at
+station may differ over the course of a week.  Or the number is equal,
+and the station could keep the balance in theory, but only with long
+unproductive standing times for the trains.  Say, a station with its
+only departure on Monday morning and only arrival later that day.
 
 The objective of strategic planning is to reduce the cost of
 implementing a fixed timetable.  The number of locomotives needed
@@ -157,35 +173,32 @@ contributes the biggest chunk to those costs.  Avoiding deadhead trips
 also saves some money, as they cost man-hours, fuel, and bring the
 next obligatory maintenance closer.  Because most types of maintenance
 aren't scheduled in fixed time intervals, but after certain distances
-travelled.
-
-Most timetables are in use for half a year.  They tend to repeat every
-week.  At the current state of the art, strategic vehicle schedule
-planning ignores the start and end of the period and pretends to work
-on an infinite cycle of identical weeks.  This rolls up a long
-schedule to a more tractable cycle of just one week.
+travelled.  \redo{Mention hauling (\textit{Schleppen})?}
 
 Strategic vehicle schedule planning in essence takes in cyclic
 timetables (plus possible non-cyclic extra trips) and puts out vehicle
 schedules to the operational planners, who \eg{} manage the transition
-between schedules.
+between schedules \redo{Hanno, stimmt das?} or short-term challenges like
+accidents.
 
 Deutsche Bahn has only recently brought sophisticated math to bear on
-these issues.  There are legacy heuristics in place that solved (and
-do solve) scheduling problems, but with no guarantees of optimality.
-Also customs and preferences have developed.
+strategic vehicle scheduling.  There are legacy heuristics in place
+that solved (and do solve) scheduling problems, but with no guarantees
+of optimality.  Also customs and preferences have developed.
 
 For example planners prefer their schedule to be as homogenous as
 possible.  Because this is what they got by default with the old
-methods, and thus a certain sense of simplicity and aesthetics has
-developed.  Typically, in freight logistics for example, a huge part
-of all trips repeats with the same time and route every Tuesday,
-Wednesday and Thursday.  So these three days get scheduled as one
-cycling day, and this is where the homogeneity comes from.  To produce
-a working schedule, this single day cycle is then unrolled to a
-three-day cycle, and the planners add the other trips occurring in the
-middle of the week.  Finally the cycle is cut, and the other four days
-of the week and their trips are inserted.
+methods, and thus a certain sense of simplicity and \ae{}sthetics has
+developed.  We will talk a lot about homogeneity, so we start with an
+example before giving a rigorous definition.  Typically, in freight
+logistics for example, a huge part of all trips repeats with the same
+time and route every Tuesday, Wednesday and Thursday.  So these three
+days get scheduled as one cycling day, and this is where the
+homogeneity comes from.  To produce a working schedule, this single
+day cycle is then unrolled to a three-day cycle, and the planners add
+the other trips occurring in the middle of the week.  Finally the
+three-day-cycle is `cut' on the transition of Thursday to Tuesday, and
+the other four days of the week and their trips are inserted. 
 
 To make the schedule usable, one has to answer further questions, like
 how to deal with trips that do not repeat every week.  And how to
@@ -195,38 +208,39 @@ this work.
 
 At each step the above, where new trips are inserted into the
 proto-schedule, the old trips can get re-scheduled, if this makes the
-schedule cheaper to implement.
+schedule cheaper to implement.  But planners tend to avoid those
+changes when possible.
 
 The new methods based on mixed integer programming consider the whole
 week right from the start.  Apart from the partly repeating timetable
 they have no reason to use similar vehicle schedulings on the working
 days.  But planners have come to price the homogeneity as an end in
 itself, because their preferred visualization of schedules looks more
-pleasing in the presence of homogeneity.  \todo{Stimmt der Grund?}
+pleasing in the presence of homogeneity.  \todo{Hanno, stimmt der Grund so?}
 \todo{Add more about blocks. Visualization.}
 
-\todo{Noch mehr Grundlagen.  Ausfuehrungen zu Betriebsablauf bei der
+\todo{Noch mehr Grundlagen.  Ausführungen zu Betriebsablauf bei der
   Bahn.}
 
 \section{Thanks}
 Thanks to Hanno Schülldorf, Volker Kaibel and Andreas Huck for their
-help.  \todo{Noch ein paar mehr Leute aufführen.}
+help.  \redo{Noch ein paar mehr Leute aufführen.}
 
 \section{Some definitions}
 
-\todo{Noch mehr mathematische Grundlagen?  Column and Row generation? Ja.}
+\todo{Noch mehr mathematische Grundlagen?  Column and Row generation? Ja, ist aber eher Füllmaterial.}
 
 \todo{Hanno schlägt vor, Beispiel (Woche = 7 Tage) und allgemeine
   Theorie zu trennen.
-
-  Plan: Nutze Woche als technischen Term (so wie Byte), und lege erst
-  später fest, dass \(w := 7\).}
+  Alternativer Plan: Nutze Woche als technischen Term (so wie Byte),
+  und lege erst später fest, dass \(w := 7\).  Verwirrt aber u.U. zu
+  sehr.  Könnte aber mit `period' funktionieren.}
 
 \subsection{Timetables}
 
 Let \(V\) be the set of all stations \eg{} ordinary railway stations,
 maintenances shops.  The rail network of connected stations will be
-modelled as a digraph \(G = (V,A)\), where \(A \subseteq V \times V\).
+modelled as a directed graph \(G = (V,A)\), where \(A \subseteq V \to V\).
 A \label{trip} \textit{trip} starting in one station \(v \in V\) and ending in another
 station \(w \in V\) can be characterized by a tuple \((v, t_v, w, t_w)
 \in \left(V \times \rationals\right)^2 \),
@@ -241,7 +255,8 @@ where \(t_v\) and \(t_w\) are the departure and arrival times.
 \end{defn}
 We call a set of trips \(T \subseteq \left(V \times
   \rationals\right)^2\) a timetable.  (In practise \(T\) may also be a
-multiset and will carry more information.)
+multiset and may carry more information, like the type of locomotives
+allowed for this trip.)
 
 We want to focus our attention on cyclic timetables.
 \begin{defn} A timetable \(T\) is \label{cyclic} \textit{cyclic}, iff
@@ -291,15 +306,14 @@ capital, deprecation charges).  The other component is caused
 primarily by the distance travelled by each locomotive, mainly because
 this causes wear and maintenance stops are scheduled after fixed
 intervals of distances travelled.  Man-hours for the locomotive
-drivers \todo{Lokführer auf Englisch?} are a special case, because
-they only occur while travelling a distance, but are proportional to
-the time this takes.
+drivers are a special case, because they only occur while travelling a
+distance, but are proportional to the time this takes.
 
 Of course the service trips in our timetable also cause costs.  But
-they are the same for every schedule, so we ignore them, since we are
-only interested in differences between schedules.  The schedule can
-include other so called deadhead trips, if it matches an arrival at
-and departure from different stations.
+they are the same for every schedule, so we can ignore them, since we
+are only interested in differences between schedules.  The schedule
+can include other so called deadhead trips, if it matches an arrival
+at and departure from different stations.
 
 All in all we can satisfy those requirements by assigning a specific
 cost to every edge of the matching graph, and sum the costs of the
@@ -315,28 +329,26 @@ edges used:
   proportional to the time the locomotives are in use, not to each
   match or trip, but only to the matches and trips that span a
   specific point in time of the cycle (\eg{} Sunday, 24.00), the so
-  called cycle jump\todo{Ist period jump ein vernünftiger Begriff?}.
-  This works because we can view the scheduling as a network
-  circulation problem, in which flow is preserved.  This allocation
-  concentrates costs on matches spanning the period jump and on the
-  deadhead trips, leaving most matches without associated costs.
-  Often this makes \textsc{Cplex} solve the problem faster.
+  called \textit{cycle jump}\redo{Hanno, ist period jump eine
+    vernünftige Übersetzung für Periodensprung?}.  This works because
+  we can view the scheduling as a network circulation problem, where
+  flow is preserved, on a graph that is embedded in a circle of time.
+  \Ie{} the flow is constant at every instant in time, because every
+  moment is a cut \todo{Ist cut richtig?  Ist ja kein S-T-Schnitt,
+    sondern das Auftrennen eines Tori.} in the graph.
+
+  This allocation concentrates costs on matches spanning the period
+  jump and on the deadhead trips, leaving most matches without
+  associated costs.  Some times this makes \textsc{Cplex} solve the
+  problem faster.
 \end{remark}
 
 \subsection{The block formulation gives rise to homogeneity}
-\todo{Hannos Ideen: Morphismen zwischen Torus (Umlauftag, Verkehrstag)
-  und Nutzfahrketten aufschreiben.  Homogene Umläufe entsprechen
-  \((+1,+1)^n\) trips auf dem Torus, die aber nicht notwendig
-  partitionieren.  (Es kann Patz auf dem Torus bleiben.)
-
-  I.A. Mehrere Tori nötig.  Wenn nur komplett gefüllte Tori, dann
-  haben wir echte Homogenität.
-  
-  Homogenität kann (immer) hergestellt werden durch Teilen von
+\todo{Homogenität kann (immer) hergestellt werden durch Teilen von
   Zügen.  (Minimiere diese Zahl, wenn nötig.)  Einfacher zu
   handhaben als abweichende Wenden.}
 
-\todo{Notation vernünftig einführen.}
+\todo{Mit anderen Abschnitten zusammenführen.}
 
 At Deutsche Bahn another approach is also in use.  It stems from the
 desire to visualize timetables and schedules and is the traditional
@@ -352,20 +364,20 @@ this axis.  From top to bottom the diagram is split into an integral
 number of virtual days (\textit{Umlauftage} in German).  Several virtual days
 make up a cycle, and there are in general more than one of those
 cycles per vehicle scheduling.  The virtual days are basically used to
-give different trips on the same weekday different coordinates.  One
+give different trips on the same weekday different coördinates.  One
 can view each part of the table that consists of a single cycle of
 virtual days, as a torus, because it logically wraps around on both
-axes.\todo{Ist axes die Mehrzahl von axis?}
+axes.
 
-At any given point in time each virtual day corresponds to one
-locomotive, that drives all service trips on that weekday and on that
-virtual day.  On the next weekday each locomotive goes on to the next
-virtual day in its cycle.  Thus trips that can't be done by one
-locomotive can't have the same coordinates.  They need to differ in
-their virtual day.
+Exactly one locomotive makes all service trips on a given pair of
+weekday and virtual day.  On the next weekday each locomotive goes on
+to the next virtual day in its cycle.  Thus trips that can't be done
+by one locomotive, \eg{} because they overlap in time, can not share
+the same coördinates.  They need to differ in their virtual day.
 
-\todo{Why do they not jump to the next virtual day only at the end of
-  a week?  Hanno says in freight they do.  Pros and Cons?}
+\redo{Why do they not jump to the next virtual day only at the end of
+  a week?  Hanno says in freight they do.  Pros and Cons?  In the end
+  we take this requirement from practise and do not question it.}
 
 Just like each trip gets repeated every week, the schedule of a single
 locomotive repeats every \(\operatorname{lcm} \lr{w, u}\) days, where
@@ -382,9 +394,10 @@ notion to tori partitioned into more than one orbit.
   cycles of virtual days with length \(l \colon \naturals \to \naturals\).  And a mapping \(a\) that
   assigns each service trip to a virtual day in the cycles:
   \[a \colon T \to \bigcup_{i \in \naturals} \lrM{i} \times U_i\]
-  Service trips that overlap in time can not be part of the same virtual day.
-  We can further demand \(l\) to be antitonic.
-  \todo{Und Verkehrstag ist u.U. nicht genau festgelegt, wenn Fahrten über Mitternach gehen.}
+  Service trips that overlap in time can not be part of the same
+  virtual day.  We can further demand \(l\) to be antitonic.
+  \todo{Und Verkehrstag ist u.U. nicht genau festgelegt, wenn Fahrten
+    über Mitternacht gehen.}
 \end{defn}
 
 A schedule is said to be homogeneous if for any given train all its
@@ -392,9 +405,9 @@ trips happen on the same virtual day.  If homogeneity causes more
 locomotives to be used than optimal, the planners violate it in two
 different ways: Trains are split up into different virtual days, and
 locomotives may continue to a virtual day that is different from the
-`next' in the cycle.  (This is called abweichende Wenden in German.
-The normal continuation on the next virtual day are called logische
-Wenden.)
+`next' in the cycle.  (This is called \textit{abweichende Wenden} in German.
+The normal continuation on the next virtual day are called \textit{logische
+Wenden}.)
 
 \subsection{A morphism between the matching formulation and the block formulation}
 
@@ -403,19 +416,20 @@ How can we transform the assignment \(a\) (and lengths of cycles
 matching formulation, and vice versa?
 
 First the easy direction: Given \(a\) and \(l\).  Given two service
-trips \(v, w \in T\), and the sets \(v^> := \lrM{x \in T \mid a\lr{x}
-  = a\lr{v}, \dep\lr{x} > \dep\lr{v}}\) and \(w^< := \lrM{x \in T \mid
-  a\lr{x} = a\lr{w}, \dep\lr{x} < \dep\lr{w}}\), the match
+trips \(v, w \in T\), and the sets \[v^> := \lrM{x \in T \mid a\lr{x}
+  = a\lr{v}, \dep\lr{x} > \dep\lr{v}}\] and
+ \[w^< := \lrM{x \in T \mid
+  a\lr{x} = a\lr{w}, \dep\lr{x} < \dep\lr{w}}\text{,}\] the match
 \(\lr{\arr\lr{v}, \dep\lr{w}}\) will be in included in the matching
 \(M\) if and only if
 \begin{itemize}
-\item the service trips are on the same virtual \(a \lr{v} = a \lr{w}\) and there is no service trip between them \ie
+\item the service trips are on the same virtual day \(a \lr{v} = a \lr{w}\) and there is no service trip between them \ie{}
   \(v^> \cap w^< = \emptyset\)
 \item \textsc{or} \(v\) and \(w\) are the latest respective first service trip in their virtual days (\(v^> = \emptyset\) and \(w^< = \emptyset\))
   and
   \begin{itemize}
-  \item \(v\) and \(w\) are on consecutive virtual days (\(\lr{i, u} := a\lr{v}\) and \(\lr{i, u+1} = a\lr{w}\)) and
-  \item and on consecutive weekdays (\(\left\lfloor \dep\lr{v}\right\rfloor + 1 = \left\lfloor \dep\lr{w}\right\rfloor \))
+  \item \(v\) and \(w\) are on consecutive virtual days (\(\lr{i, u} := a\lr{v}\) and \(\lr{i, u+1} = a\lr{w}\))
+  \item and also on consecutive weekdays (\(\left\lfloor \dep\lr{v}\right\rfloor + 1 = \left\lfloor \dep\lr{w}\right\rfloor \))
   \end{itemize}
 \end{itemize}
 
@@ -431,15 +445,24 @@ Continue with the trip \(w \in T\) whose departure is matched to
 \end{itemize}
 
 After this procedure we may be able to merge cycles of virtual days.
-This may be the case if \(\gcd \lr{w, l\lr{i}} > 1\).  Where \(w\) is the number of days in the week.1
+This may be the case if \(\gcd \lr{w, l\lr{i}} > 1\).  Where \(w\) is
+the number of days in the week.  (When you display the block
+formulation in a table, then there will be empty diagonals in this case.)
 
-\todo{Continue with Merging.}
+Two merge two cycles \(U_i, U_j\) in one table \(U_{\lrM{i,j}} \), we
+check if there is an offset \(o \in \integers\) so that
+\[\lr{a \mid t \in T, a\lr{t} = \lr{i,x}} \cap \lr{a \mid blabla} = \emptyset\]
+
+\[
+%pairwise (disjunct `on` fn (i) -> \cap (map (+(0,o_i) . coordinates) . filter ((\in U_i) . days) \$ trips)) merge-candidates 
+\] % -> notation finden!
+
+\todo{Continue with Merging.  Orbits and Nebenklassen.}
       
 
 \subsection{Homogeneity in the matching model}
 
 \todo{Züge should be introduced earlier, so that the section above can reference them.}
-\todo{Morphism between matching model and block formulation.}
 
 In practise timetables repeat every week \ie{} \(w = 7 \textrm{ days}\).
 This work will deal with timetables that show more structure: Fix an
@@ -476,9 +499,14 @@ because \(G_S\) consists only of disjoint cycles.
 
 \todo{Bezeichnungen!  Pfeile über t?}
 
-\todo{Mehrwöchige Fahrten:  Zurückgehen auf die ursprüngliche nicht-zyklische Version!}
+\todo{Mehrwöchige Fahrten: Zurückgehen auf die ursprüngliche
+  nicht-zyklische Version!  Oder einfach als außerhalb des Scopes
+  definieren.}
 
-Of course we have only moved the problem.  We still have to define the length of a single arc:  \(d(t, \ol{t})\) shall be the minimal time that a vehicle needs to provide \(t\) and be ready for the departure of \(\ol{t}\):
+Of course we have only moved the problem.  We still have to define the
+length of a single arc: \(d(t, \ol{t})\) shall be the minimal time
+that a vehicle needs to provide \(t\) and be ready for the departure
+of \(\ol{t}\):
 \[
 d ((\cdot, t_{\textrm{dep}}, \cdot, t_{\textrm{arr}}), (\cdot, \ol{t_{\textrm{dep}}},\cdot, \cdot)  :=
 \min (\{\ol{t_{\textrm{dep}}} - t_{\textrm{dep}} + n w \mid \ol{t_{\textrm{dep}}} - t_{\textrm{arr}} + nw \geq 0, n \in \mathbb{Z}\} \cap \rationals^+_0)
@@ -496,9 +524,8 @@ of one class \(c_1\) only be succeeded by members of the same class
 offered all week would be banned from being connected to a class of trains that
 are not offered on the weekend.
 
-\todo{motivation.  fällt aus der luft.. zitat der begriffsbestimmung.}
 So we introduce a weaker condition.  A schedule \(S\) is called
-homogenous iff:
+homogeneous iff:
 \begin{defn} Given
   \begin{itemize}
   \item classes \(z, \ol{z} \in C\)
@@ -513,8 +540,6 @@ homogenous iff:
     \end{equation}
 \end{defn}
 
-
-\todo{motivation fuer definition}
 \begin{defn}
 For arcs in a digraph \(G=(V,A)\) we will use the following notation:
 \begin{align*}
@@ -618,7 +643,6 @@ Given
 \end{defn}
 \section{Finitizing the integer linear program}
 \label{finitizing}
-\todo{Motivation!}
 
 The linear integer program of section \ref{infIP} describes the
 problem of finding a homogeneous vehicle schedule.  It uses an
@@ -678,7 +702,7 @@ Now we can rewrite \ref{onlyOneFinite} and \ref{zwingRunterFinite}:
 \end{align}
 
 Putting \ref{zwingHoch} into the new form poses bigger
-problem. \todo{Warum?  Hier erklärung einfuegen.}  For every path \(P
+problem. \todo{Warum?  Hier erklärung einfügen.}  For every path \(P
 \subseteq \mathbb{S}\) that starts in \(r\) and ends in \(q\) we have:
 \[
 %\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
@@ -691,14 +715,13 @@ and thus:
 \sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \sum_{a \in P} \frac{ d \left(a\right)}{w} - \frac{d(r,q)}{w}\right) - 1
 \end{align}
 
-\todo{Vorher könnten wir n fuer jeden Bogen unabhäging wählen.  Jetzt
-  muessen wir eine Abhängigkeit fordern.  Gluecklicherweise können wir das statisch
+\todo{Vorher könnten wir n für jeden Bogen unabhäging wählen.  Jetzt
+  müssen wir eine Abhängigkeit fordern.  Glücklicherweise können wir das statisch
   bestimmen!
-
   Was ist die Länge von \(P\) in terms of n in abhängigkeit der
   zwischenschritte?  Und das hat auch geklappt in \ref{zwingHochFiniteN}}
 
-\todo{Formuliere das verendlichte Problem konkret-komplett.  Und fuege die eigentliche homogenitätsbedingung hinzu!}
+\todo{Formuliere das verendlichte Problem konkret-komplett.  Und füge die eigentliche homogenitätsbedingung hinzu!}
 
 We can express the constraint \ref{homoEqLin} in terms of \(D\), too:
 \begin{itemize}
@@ -741,8 +764,8 @@ M \leq \left|T\right|^2 w
 Thus \(O\lr{\abs{T}^4}\) variables constitute \(m\), which
 dwarves the contribution of \(D\).
 
-\todo{Referenzen zu den relevanten Gleichungen und Namen einfuehren
-  fuer die O() schätzungen.}
+\todo{Referenzen zu den relevanten Gleichungen und Namen einführen
+  für die O() schätzungen.}
 
 All in all the problem lives in relatively small polynomial number of
 binary variables.  However the number of constraints is exponential:
@@ -828,7 +851,7 @@ or the objective function.
   least in polynomial time.  Perhaps even linear?}
 
 \section{Balancing homogeneity with other objectives?}
-Homogeneity is a very soft objective, \ie its value is hard to measure
+Homogeneity is a very soft objective, \ie{} its value is hard to measure
 in money.  Partly, the effort invested in achieving homogeneity is
 intended to enhance adoption of the other optimizing work done at
 department GSU1.

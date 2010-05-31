@@ -1,6 +1,7 @@
-> {-# OPTIONS_GHC -fglasgow-exts -fextended-default-rules #-}
+> {-# OPTIONS_GHC -fglasgow-exts #-}
+> {-# LANGUAGE ExtendedDefaultRules #-}
 
-> module Main where
+> module Main where 
 > import Test.QuickCheck
 > import Data.Function
 > import System.Cmd
@@ -75,14 +76,11 @@ Generic Haskell waere hier besser.  (Warum?)
 >    where numV = sum (map length zuege)
 >          
 
-
-
 > command inFile outFile = "./scip -c 'read \"" ++ inFile ++"\"' -c 'optimize' "
 >                          ++"-c 'write solution \""++outFile++"\"' -c 'quit'"
 
 > writeF :: FilePath -> String -> IO ()
 > writeF filePath string = withFile filePath WriteMode (flip hPutStr string)
-
 
 > combine :: (Ord k, Eq k, Show k, Show a, Show b)
 >            => M.Map k a -> M.Map k b -> Maybe (M.Map k (a,b))
@@ -100,11 +98,10 @@ Generic Haskell waere hier besser.  (Warum?)
 >           la = M.toList ma
 >           lb = M.toList mb
 
-
-
-> instance Show (Maybe Ordering) where
->     show Nothing = "Nothing"
->     show (Just x) = ("Just " ++ show x)
+> -- Why isn't this derived automatically?
+> -- instance Show (Maybe Ordering) where
+> --    show Nothing = "Nothing"
+> --    show (Just x) = ("Just " ++ show x)
 
 findFault searches the IP solution for differences between
 matching-implied distances and distances indicated by the `ks_abs' variables in
@@ -132,7 +129,7 @@ the solution.
 >     where n = liftM neighbours1 $ path mNf a b
 >           s = liftM (sum . map (uncurry (d2' zzuege)))
 
-> cutConstraint _ _ _ _ = Nothing
+> cutConstraint _ _ _ _ = error "Not implemented" ---Nothing
 
 
 > zimplify :: Constraint -> String
@@ -195,9 +192,6 @@ parseSol nfnrs solFile
 >          = do sol <- solve constraints
 >               constraints' <- IOMayfail (return $ do faults <- findFault zzuege sol
 >                                                      return (constraints ++ correctFaults zzuege sol faults))
->               loop constraints'
->          -- (loop . () -- =<< correctFault zzuege sol =<< findFault zzuege) sol
-
                putStr "\nFaults:\t"
                print . join . maybeToList
                      . liftM (catMaybes . M.elems)
