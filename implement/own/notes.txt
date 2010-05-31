@@ -1,0 +1,4 @@
+Optimiere direkt in der Blockdarstellung.  Optimiere parallel in
+Blockdarstellung und Nutzfahrkettendarstellung.
+
+Optimierung in Blockdarstellung sollte in polynomialem Raum gehen.
