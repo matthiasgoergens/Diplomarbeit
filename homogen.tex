@@ -45,7 +45,7 @@
 
 %\todo does not work in the abstract.
 
-v\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\ol}[1]{\overline{#1}}
 
 
 \newcommand\mpar[1]{\marginpar {\flushleft\sffamily\small #1}}
@@ -234,7 +234,7 @@ help.  \redo{Noch ein paar mehr Leute aufführen.}
   Theorie zu trennen.
   Alternativer Plan: Nutze Woche als technischen Term (so wie Byte),
   und lege erst später fest, dass \(w := 7\).  Verwirrt aber u.U. zu
-  sehr.  Könnte aber mit `period' funktionieren.}
+  sehr.  Könnte aber mit einem Term wie `cyclic period' (oder so) funktionieren.}
 
 \subsection{Timetables}
 
@@ -301,11 +301,12 @@ for all cases.  But we want to keep the presentation simple.
 
 Not all schedules are equal.  In general different schedules implement
 a given timetable at different costs.  One component of the costs is
-proportional to the time each locomotive is in us (\eg{} interest on
-capital, deprecation charges).  The other component is caused
-primarily by the distance travelled by each locomotive, mainly because
-this causes wear and maintenance stops are scheduled after fixed
-intervals of distances travelled.  Man-hours for the locomotive
+proportional to number and time each locomotive is in us (\eg{}
+interest on capital, deprecation charges).  The other component is
+caused primarily by the distance travelled by each locomotive, mainly
+because this burns fuel and causes wear; maintenance stops are
+scheduled after fixed intervals of distances travelled, and thus
+accounted for.  Man-hours for the locomotive
 drivers are a special case, because they only occur while travelling a
 distance, but are proportional to the time this takes.
 
