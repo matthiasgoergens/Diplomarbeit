@@ -109,6 +109,7 @@
 \tableofcontents
 %\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 
+
 \section{Introduction}
 Unlike individual traffic in cars, railroads in Germany are run by
 only a few companies and of those Deutsche Bahn (and its subsidaries)
@@ -798,13 +799,13 @@ We can start solving with only the equations \ref{matchBedingung} that
 guarantee a flow free of sources and sinks and the variables \(m\).
 All other variables are treated as parameters set to zero.
 
-We analyse the solutions obtained.  The variables \(m\) specify a
+We analyse the solutions thus obtained.  The variables \(m\) specify a
 graph made of cycles.  For every cycle we can get the distance
 \(\Delta\) between all of its nodes by straight-forward counting in
 time \(O(T^2)\) \todo{Details zum Zählen.} (or employing Bellman-Ford
 etc).  All distances between nodes in different cycles are \(\infty\)
-by definition \ref{defDelta}.  \todo{Perhaps use lazy evaluation to enumerate
-  all flaws.  Pick the first.}
+by definition \ref{defDelta}.  \todo{Perhaps use lazy evaluation to
+  enumerate all flaws.  Pick the first.}
 
 First check \ref{onlyOne} for every pair of vertices.  If a pair, say
 \(s,t\), violates \ref{onlyOne}, let
@@ -857,9 +858,14 @@ in money.  Partly, the effort invested in achieving homogeneity is
 intended to enhance adoption of the other optimizing work done at
 department GSU1.
 
+\todo{How about minimal run-times?  NP? Or at least reduce stuff like sorting to the homogeneity problem.}
+
 \section{Implementation}
 Implementation will be done in the \textsc{Cplex}-framework existing at
 department GSU1 of DB Mobility Logistics AG.
+\todo{What happened in the meantime?}
+
 \section{Conclusion}
+The framework in use at Deutsche Bahn can handle the addition of homogenity.
 
 \end{document}
