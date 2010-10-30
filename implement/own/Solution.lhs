@@ -1,8 +1,9 @@
-> module Solution (Solution(Solution), KT_Abs(KT_Abs,Infinity), Nutzfahrt(Nf), Zug(Zug), Zeit(Zeit), NfNr (NfNr), stdKT) where
+> module Solution (Solution(Solution), KT_Abs(KT_Abs,Infinity), Nutzfahrt(Nf), Zug(Zug), Zeit(Zeit), NfNr (NfNr), stdKT,
+>                  unKT_Abs) where
 > import qualified Data.Map as M
 > import Data.Function
+> import BasicTools
 
-> import Util
 > import Test.QuickCheck
 
 
