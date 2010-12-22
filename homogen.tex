@@ -323,7 +323,7 @@ Of course the service trips in our timetable also cause costs.  But
 they are the same for every schedule, so we can ignore them, since we
 are only interested in differences between schedules.  The schedule
 can include other so called deadhead trips, if it matches an arrival
-at and departure from different stations.
+at one station with a departure from a different station.
 
 All in all we can satisfy those requirements by assigning a specific
 cost to every edge of the matching graph, and sum the costs of the
@@ -342,13 +342,15 @@ edges used:
   called \textit{cycle jump}\redo{Hanno, ist period jump eine
     vernünftige Übersetzung für Periodensprung?}.  This works because
   we can view the scheduling as a network circulation problem, where
-  flow is preserved, on a graph that is embedded in a circle of time.
-  \Ie{} the flow is constant at every instant in time, because every
-  moment is a cut \todo{Ist cut richtig?  Ist ja kein S-T-Schnitt,
-    sondern das Auftrennen eines Tori.} in the graph.
+  flow is preserved, on a graph that is embedded in a circle of
+  time. \todo{How about adding a more formal proof here?}  \Ie{} the
+  flow is constant at every instant in time, because every moment is a
+  cut \todo{Ist cut richtig?  Ist ja kein S-T-Schnitt, sondern das
+    Auftrennen eines Tori.} in the graph.
 
   This allocation concentrates costs on matches spanning the period
-  jump and on the deadhead trips, leaving most matches without
+  jump and on the deadhead trips \todo{Die deadhead trips müssen immer
+    noch einzeln behandelt werden?}, leaving most matches without
   associated costs.  Some times this makes \textsc{Cplex} solve the
   problem faster.
 \end{remark}
@@ -368,16 +370,16 @@ leads to homogeneity.
 The visualization of the block formulation displays the vehicle
 schedulings as a two-dimensional table.  From left to right (and then
 logically wrapping around to the left again) runs the time-axis, with
-columns for the days of the week (\textit{Verkehrstage} in German) and inside
-each column the time of the day.  Each service trip is an interval on
-this axis.  From top to bottom the diagram is split into an integral
-number of virtual days (\textit{Umlauftage} in German).  Several virtual days
-make up a cycle, and there are in general more than one of those
-cycles per vehicle scheduling.  The virtual days are basically used to
-give different trips on the same weekday different coördinates.  One
-can view each part of the table that consists of a single cycle of
-virtual days, as a torus, because it logically wraps around on both
-axes.
+columns for the days of the week (\textit{Verkehrstage} in German) and
+inside each column the time of the day.  Each service trip is an
+interval on this axis.  From top to bottom the diagram is split into
+an integral number of virtual days (\textit{Umlauftage} in German).
+Several virtual days make up a cycle, and there are in general more
+than one of those cycles per vehicle scheduling.  The virtual days are
+basically used to give different trips on the same weekday different
+coördinates.  One can view each part of the table that consists of a
+single cycle of virtual days, as a torus, because it logically wraps
+around on both axes.
 
 Exactly one locomotive makes all service trips on a given pair of
 weekday and virtual day.  On the next weekday each locomotive goes on
@@ -415,9 +417,9 @@ trips happen on the same virtual day.  If homogeneity causes more
 locomotives to be used than optimal, the planners violate it in two
 different ways: Trains are split up into different virtual days, and
 locomotives may continue to a virtual day that is different from the
-`next' in the cycle.  (This is called \textit{abweichende Wenden} in German.
-The normal continuation on the next virtual day are called \textit{logische
-Wenden}.)
+`next' in the cycle.  (This is called \textit{abweichende Wenden} in
+German.  The normal continuation on the next virtual day are called
+\textit{logische Wenden}.)
 
 \subsection{A morphism between the matching formulation and the block formulation}
 
@@ -457,7 +459,8 @@ Continue with the trip \(w \in T\) whose departure is matched to
 After this procedure we may be able to merge cycles of virtual days.
 This may be the case if \(\gcd \lr{w, l\lr{i}} > 1\).  Where \(w\) is
 the number of days in the week.  (When you display the block
-formulation in a table, then there will be empty diagonals in this case.)
+formulation in a table, then there will be empty diagonals in this
+case.)
 
 Two merge two cycles \(U_i, U_j\) in one table \(U_{\lrM{i,j}} \), we
 check if there is an offset \(o \in \integers\) so that
@@ -529,10 +532,10 @@ has to be taken when trains take more than one week from arrival to
 departure.
 
 To guarantee homogeneity one might \naively{} propose that all members
-of one class \(c_1\) only be succeeded by members of the same class
-\(c_2\).  But that would not be practial, because \eg{} a class that is
-offered all week would be banned from being connected to a class of trains that
-are not offered on the weekend.
+of one class~\(c_1\) only be succeeded by members of the same class~
+\(c_2\).  But that would not be practial, because \eg{} a class that
+is offered all week would be banned from being connected to a class of
+trains that are not offered on the weekend.
 
 So we introduce a weaker condition.  A schedule \(S\) is called
 homogeneous iff:
@@ -567,7 +570,7 @@ v &\mapsto \left\{ u \colon \left(u,v\right) \in \ina(v) \right\}\\
 %\begin{align*}
 \outv\colon  V &\to \mathcal{P}(V) \\
 v &\mapsto \left\{w \colon \left(v,w\right) \in \outa\left(v\right) \right\}\\
-\end{align*}
+\end{align*}s
 \end{defn}
 
 \section{An infinite integer linear program}
@@ -852,7 +855,7 @@ If \ref{onlyOne} holds, \(D\) implies a \(\ol{\Delta_S}\).  Calculate
 At the beginning there will be variables that are not present in any
 constraint.  A solver like \textsc{Cplex} will only add them to the
 problem as the constraints make them have an impact \ie as they show
-up with at least one non-zero cöefficient in at least one constraint
+up with at least one non-zero co\"efficient in at least one constraint
 or the objective function.
 
 \subsection{Estimating the runtime of the oracle}
@@ -861,10 +864,10 @@ or the objective function.
   least in polynomial time.  Perhaps even linear?}
 
 \section{Balancing homogeneity with other objectives?}
-Homogeneity is a very soft objective, \ie{} its value is hard to measure
-in money.  Partly, the effort invested in achieving homogeneity is
-intended to enhance adoption of the other optimizing work done at
-department GSU1.
+Homogeneity is a very soft objective, \ie{} its value to Deutsche Bahn
+is hard to measure in money.  Partly, the effort invested in achieving
+homogeneity is intended to enhance adoption of the other optimizing
+work done at department GSU1.
 
 \todo{How about minimal run-times?  NP? Or at least reduce stuff like sorting to the homogeneity problem.}
 
