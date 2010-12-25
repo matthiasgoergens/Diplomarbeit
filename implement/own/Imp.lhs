@@ -1,5 +1,6 @@
 > {-# OPTIONS_GHC -fglasgow-exts #-}
 > {-# LANGUAGE ExtendedDefaultRules #-}
+
 > module Main where
 > import Test.QuickCheck
 > import Data.Function
@@ -81,14 +82,11 @@ Generic Haskell waere hier besser.  (Warum?)
 >    where numV = sum (map length zuege)
 >          
 
-
-
 > command inFile outFile = "./scip -c 'read \"" ++ inFile ++"\"' -c 'optimize' "
 >                          ++"-c 'write solution \""++outFile++"\"' -c 'quit'"
 
 > writeF :: FilePath -> String -> IO ()
 > writeF filePath string = withFile filePath WriteMode (flip hPutStr string)
-
 
 > combine :: (Ord k, Eq k, Show k, Show a, Show b)
 >            => M.Map k a -> M.Map k b -> Maybe (M.Map k (a,b))
@@ -106,11 +104,10 @@ Generic Haskell waere hier besser.  (Warum?)
 >           la = M.toList ma
 >           lb = M.toList mb
 
-
-
-> instance Show (Maybe Ordering) where
->     show Nothing = "Nothing"
->     show (Just x) = ("Just " ++ show x)
+> -- Why isn't this derived automatically?
+> -- instance Show (Maybe Ordering) where
+> --    show Nothing = "Nothing"
+> --    show (Just x) = ("Just " ++ show x)
 
 findFault searches the IP solution for differences between
 matching-implied distances and distances indicated by the `ks_abs' variables in
@@ -151,7 +148,7 @@ correctFaults zzuege sol faults =
 >                      )
 
 
-> cutConstraint _ _ _ _ = Nothing
+> cutConstraint _ _ _ _ = error "Not implemented" ---Nothing
 
 
 > zimplify :: Constraint -> String
@@ -231,8 +228,6 @@ parseSol nfnrs solFile
 >              nConstraints :: Solution -> [((NfNr,NfNr), Ordering)] -> [Constraint]
 >              nConstraints sol = map (cFault sol)
 >          loop . (constraints ++) . nConstraints sol $ faults sol
-
-
 
                putStr "\nFaults:\t"
                print . join . maybeToList
