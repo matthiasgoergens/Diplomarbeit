@@ -84,6 +84,9 @@
 % lrM := left right für Mengen
 \newcommand{\lrM}[1]{\ensuremath{\left\{ #1 \right\}}}
 
+\newcommand\dep[0]{\ensuremath{\operatorname{dep}}}
+\newcommand\arr[0]{\ensuremath{\operatorname{arr}}}
+
 \usepackage{hyperref}
 \begin{document}
 
@@ -109,6 +112,9 @@
 \tableofcontents
 %\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 
+\todo{Survey of literature?  Citeseer and Arxive and Hanno.}
+
+
 \section{Introduction}
 Unlike individual traffic in cars, railroads in Germany are run by
 only a few companies and of those Deutsche Bahn (and its subsidaries)
@@ -126,7 +132,7 @@ schedules is multi-tiered.  This paper has been written while working
 at department GSU1 of DB Mobility Logistics.  The focus at GSU1 is on
 improving the process of (strategic) vehicle schedulings.
 
-\todo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
+\redo{unterschied zwischen fahrplan und umlaufplan im abstract ausarbeiten.}
 \todo{Mit Hanno besprochen: 
   - darstellung der legacy anwendung (blockdarstellung:
   di,mi,do als einen tag planen, ausnahmen einfuegen, rest der woche einfuegen)
@@ -248,14 +254,12 @@ help.  \redo{Noch ein paar mehr Leute aufführen.}
 \subsection{Timetables}
 
 Let \(V\) be the set of all stations \eg{} ordinary railway stations,
-maintenances shops.  The rail network of connected stations will be
-modelled as a directed graph \(G = (V,A)\), where \(A \subseteq V \to V\).
-A \label{trip} \textit{trip} starting in one station \(v \in V\) and ending in another
-station \(w \in V\) can be characterized by a tuple \((v, t_v, w, t_w)
-\in \left(V \times \rationals\right)^2 \),
+and maintenances shops.  The rail network of connected stations will
+be modelled as a directed graph \(G = (V,A)\), where \(A \subseteq V
+\to V\).  A \label{trip} \textit{trip} starting in one station \(v \in
+V\) and ending in another station \(w \in V\) can be characterized by
+a tuple \((v, t_v, w, t_w) \in \left(V \times \rationals\right)^2 \),
 where \(t_v\) and \(t_w\) are the departure and arrival times.
-\newcommand\dep[0]{\ensuremath{\operatorname{dep}}}
-\newcommand\arr[0]{\ensuremath{\operatorname{arr}}}
 \begin{defn}[Departure and Arrivals]
   \begin{align*}
     \dep, \arr \colon & \lr{V \times \rationals}^2 \to \lr{V \times \rationals} \\
@@ -363,9 +367,9 @@ edges used:
 \todo{Mit anderen Abschnitten zusammenführen.}
 
 At Deutsche Bahn another approach is also in use.  It stems from the
-desire to visualize timetables and schedules and is the traditional
-formulation.  This approach, called the block formulation, naturally
-leads to homogeneity.
+traditional way to display and visualize timetables and schedules.
+This approach, called the block formulation, naturally leads to
+homogeneity.
 
 The visualization of the block formulation displays the vehicle
 schedulings as a two-dimensional table.  From left to right (and then
@@ -395,6 +399,8 @@ Just like each trip gets repeated every week, the schedule of a single
 locomotive repeats every \(\operatorname{lcm} \lr{w, u}\) days, where
 \(w\) is the number of days in a week and \(u\) is the length of the
 cycle of virtual days of this locomotive.
+
+\todo{Talk about tori or (products of) cyclic groups?}
 
 Only tori where every locomotive visits combination of weekday and
 virtual day, that is \(\gcd{} \lr{w,u} = 1\), are considered proper in
@@ -720,7 +726,7 @@ problem. \todo{Warum?  Hier erklärung einfügen.}  For every path \(P
 \[
 %\sum_{a \in P} (m(a) - 1) \leq \delta \left(r,q, \sum_{a \in P} d \left(a\right)\right) - 1  \\
 %\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \left[ \sum_{a \in P} d \left(a\right) \right] \right) - 1 \\
-\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \frac{\left(\sum_{a \in P} d \left(a\right)\right) -d(r,q)}{w}\right) - 1  \\
+\sum_{a \in P} (m(a) - 1) \leq D \left(r,q, \frac{\left(\sum_{a \in P} d \left(a\right)\right) -d(r,q)}{w}\right) - 1
 \]
 and thus:
 \begin{align}
@@ -861,7 +867,8 @@ or the objective function.
 \subsection{Estimating the runtime of the oracle}
 
 \todo{How fast can we find violated constraints?  I say, fast!  At
-  least in polynomial time.  Perhaps even linear?}
+  least in polynomial time.  Perhaps even linear?  Linear would be a
+  nice result.}
 
 \section{Balancing homogeneity with other objectives?}
 Homogeneity is a very soft objective, \ie{} its value to Deutsche Bahn
@@ -869,7 +876,9 @@ is hard to measure in money.  Partly, the effort invested in achieving
 homogeneity is intended to enhance adoption of the other optimizing
 work done at department GSU1.
 
-\todo{How about minimal run-times?  NP? Or at least reduce stuff like sorting to the homogeneity problem.}
+\todo{How about minimal run-times?  NP? Or at least reduce stuff like sorting to the homogeneity problem.
+
+Aim for reduction of NP-complete problem.  Knapsack problem may also be possible?}
 
 \section{Implementation}
 Implementation will be done in the \textsc{Cplex}-framework existing at
